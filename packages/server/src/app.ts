@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import { requestId } from 'hono/request-id';
 import { secureHeaders } from 'hono/secure-headers';
 
+import { authRoutes } from './features/identity-and-access/auth.routes';
 import { env } from './shared/lib/env';
 import { errorHandler } from './shared/middleware/error-handler';
 import { requestLogger } from './shared/middleware/request-logger';
@@ -24,7 +25,7 @@ export function createApp() {
   app.onError(errorHandler);
   app.get('/health', (c) => c.json({ status: 'ok' }));
 
-  // TODO: 라우트 마운트 (향후 기능 구현 시 추가)
+  app.route('/', authRoutes);
 
   return app;
 }

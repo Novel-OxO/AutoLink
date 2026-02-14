@@ -1,21 +1,20 @@
 import { getCookie } from 'hono/cookie';
 import { createMiddleware } from 'hono/factory';
-import { HTTPException } from 'hono/http-exception';
 
+import { SESSION_COOKIE_NAME, SESSION_PREFIX } from '../constants';
+import { SessionMissingException, SessionNotFoundException } from '../errors/auth.error';
 import { redis } from '../lib/redis';
 import type { AppEnv } from '../types/context';
 
 export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
-  const sessionId = getCookie(c, 'autolink_sid');
-
+  const sessionId = getCookie(c, SESSION_COOKIE_NAME);
   if (!sessionId) {
-    throw new HTTPException(401, { message: 'Unauthorized' });
+    throw new SessionMissingException();
   }
 
-  const session = await redis.get(`session:${sessionId}`);
-
+  const session = await redis.get(`${SESSION_PREFIX}${sessionId}`);
   if (!session) {
-    throw new HTTPException(401, { message: 'Session expired' });
+    throw new SessionNotFoundException();
   }
 
   const user = JSON.parse(session) as { id: number; email: string };
