@@ -25,6 +25,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "test": "bun run build:shared && bun run --filter '*' test",
+    "test:server": "bun run build:shared && bun run --filter '@autolink/server' test",
     "clean": "bun run --filter '*' clean && rm -rf node_modules",
     "db:generate": "bun run --filter '@autolink/server' db:generate",
     "db:migrate": "cd packages/server && bunx prisma migrate dev && cd ../.. && bun run db:generate",
