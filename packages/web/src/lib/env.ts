@@ -15,6 +15,6 @@ export const env = {
 
   /** API 기본 URL */
   get apiUrl(): string {
-    return `${this.serverUrl}/api`;
+    return this.serverUrl;
   },
 };
