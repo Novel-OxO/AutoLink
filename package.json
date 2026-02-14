@@ -32,6 +32,8 @@
     "db:studio": "cd packages/server && bunx prisma studio",
     "format": "biome format --write .",
     "format:check": "biome check --formatter-enabled=true --linter-enabled=false .",
+    "erd:build": "sed 's/provider = \"postgresql\"/provider = \"postgresql\"\\n  url      = env(\"DATABASE_URL\")/' ./packages/server/prisma/schema.prisma > /tmp/autolink-erd-schema.prisma && DATABASE_URL=postgresql://x@localhost/x npx @liam-hq/cli erd build --input /tmp/autolink-erd-schema.prisma --format prisma",
+    "erd": "bun run erd:build && npx serve dist",
     "prepare": "husky"
   },
   "devDependencies": {

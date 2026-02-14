@@ -21,8 +21,11 @@ jobs:
       - name: Install Liam ERD CLI
         run: npm install -g @liam-hq/cli
 
+      - name: Patch Prisma schema for Liam CLI
+        run: sed -i 's/provider = "postgresql"/provider = "postgresql"\n  url      = env("DATABASE_URL")/' ./packages/server/prisma/schema.prisma
+
       - name: Generate ER Diagram
-        run: liam erd build --input ./packages/server/prisma/schema.prisma --format prisma
+        run: DATABASE_URL=postgresql://x@localhost/x liam erd build --input ./packages/server/prisma/schema.prisma --format prisma
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
