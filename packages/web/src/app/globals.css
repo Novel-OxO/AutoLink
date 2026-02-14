@@ -51,40 +51,6 @@
   --chart-3: #08F29B;
   --chart-4: #29FFB0;
   --chart-5: #98F9D5;
-
-  /* ── custom palette: neutral ── */
-  --color-neutral-1: #F9F9FA;
-  --color-neutral-3: #F1F2F3;
-  --color-neutral-5: #EAEBEC;
-  --color-neutral-10: #DBDCDF;
-  --color-neutral-20: #CCCDD1;
-  --color-neutral-30: #AEB0B6;
-  --color-neutral-35: #989BA2;
-  --color-neutral-40: #878A93;
-  --color-neutral-50: #70737C;
-  --color-neutral-60: #5A5C63;
-  --color-neutral-70: #46474C;
-  --color-neutral-75: #37383C;
-  --color-neutral-80: #27282C;
-  --color-neutral-90: #212225;
-  --color-neutral-95: #1B1C1E;
-
-  /* ── custom palette: red ── */
-  --color-red-1: #FFFAF7;
-  --color-red-5: #FFEBE0;
-  --color-red-10: #FCAEA9;
-  --color-red-20: #FF8F87;
-  --color-red-30: #FE7A70;
-  --color-red-40: #FF6C62;
-  --color-red-50: #F1564B;
-
-  /* ── custom palette: mint ── */
-  --color-mint-1: #C6FAE6;
-  --color-mint-10: #98F9D5;
-  --color-mint-20: #29FFB0;
-  --color-mint-30: #08F29B;
-  --color-mint-40: #0DD78C;
-  --color-mint-50: #1BA673;
 }
 
 @theme inline {
@@ -131,6 +97,40 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
+  /* ── custom palette: neutral ── */
+  --color-neutral-1: #F9F9FA;
+  --color-neutral-3: #F1F2F3;
+  --color-neutral-5: #EAEBEC;
+  --color-neutral-10: #DBDCDF;
+  --color-neutral-20: #CCCDD1;
+  --color-neutral-30: #AEB0B6;
+  --color-neutral-35: #989BA2;
+  --color-neutral-40: #878A93;
+  --color-neutral-50: #70737C;
+  --color-neutral-60: #5A5C63;
+  --color-neutral-70: #46474C;
+  --color-neutral-75: #37383C;
+  --color-neutral-80: #27282C;
+  --color-neutral-90: #212225;
+  --color-neutral-95: #1B1C1E;
+
+  /* ── custom palette: red ── */
+  --color-red-1: #FFFAF7;
+  --color-red-5: #FFEBE0;
+  --color-red-10: #FCAEA9;
+  --color-red-20: #FF8F87;
+  --color-red-30: #FE7A70;
+  --color-red-40: #FF6C62;
+  --color-red-50: #F1564B;
+
+  /* ── custom palette: mint ── */
+  --color-mint-1: #C6FAE6;
+  --color-mint-10: #98F9D5;
+  --color-mint-20: #29FFB0;
+  --color-mint-30: #08F29B;
+  --color-mint-40: #0DD78C;
+  --color-mint-50: #1BA673;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
