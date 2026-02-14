@@ -67,7 +67,7 @@ Turborepo 없이 `package.json` 스크립트 체이닝으로 빌드 순서를 �
 
 ## Conventions
 
-- **커밋**: Conventional Commits 필수 (commitlint 훅). 허용 스코프: `server`, `web`, `app`, `shared`, `config`, `docs`, `deps`, `ci`
+- **커밋**: Conventional Commits 필수 (commitlint 훅). subject는 소문자로 시작. 허용 스코프: `server`, `web`, `app`, `shared`, `config`, `docs`, `deps`, `ci`
 - **린트/포맷**: Biome (세미콜론, 싱글쿼트, trailing comma, 100자). pre-commit 훅으로 lint-staged → `biome check --write` 자동 실행
 - **경로 별칭**: 모든 패키지에서 `@/*` → `src/*`
 - **테스트**: Jest + ts-jest. 파일명 `*.spec.ts`. rootDir은 `src/`
