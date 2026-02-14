@@ -1,8 +1,9 @@
 'use client';
 
-import { Bell, Briefcase, Link, LogOut, Search, User } from 'lucide-react';
+import { Bell, Briefcase, Link, LogIn, LogOut, Search, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-
+import { useState } from 'react';
+import { LoginModal } from '@/components/auth/login-modal';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
@@ -18,6 +19,8 @@ const menuItems = [
 
 export function Sidebar(): React.JSX.Element {
   const pathname = usePathname();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const isLoggedIn = false; // TODO: 실제 인증 상태로 교체
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 flex w-60 flex-col bg-neutral-95 text-neutral-10">
@@ -72,17 +75,31 @@ export function Sidebar(): React.JSX.Element {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Logout */}
+        {/* Login/Logout */}
         <div className="px-1 pb-6">
-          <button
-            type="button"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-30 transition-colors hover:bg-neutral-80 hover:text-neutral-10"
-          >
-            <LogOut className="size-5" />
-            로그아웃
-          </button>
+          {isLoggedIn ? (
+            <button
+              type="button"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-30 transition-colors hover:bg-neutral-80 hover:text-neutral-10"
+            >
+              <LogOut className="size-5" />
+              로그아웃
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsLoginModalOpen(true)}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-30 transition-colors hover:bg-neutral-80 hover:text-neutral-10"
+            >
+              <LogIn className="size-5" />
+              로그인
+            </button>
+          )}
         </div>
       </nav>
+
+      {/* Login Modal */}
+      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </aside>
   );
 }
