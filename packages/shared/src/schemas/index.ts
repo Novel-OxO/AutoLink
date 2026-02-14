@@ -2,3 +2,8 @@ export * from './common.schema';
 export * from './auth.schema';
 export * from './link.schema';
 export * from './folder.schema';
+export * from './tag.schema';
+export * from './workspace.schema';
+export * from './notification.schema';
+export * from './search.schema';
+export * from './trash.schema';
