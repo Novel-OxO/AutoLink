@@ -46,9 +46,60 @@ enum IntegrationType {
   GITHUB
 }
 
-enum InterviewStatus {
-  IN_PROGRESS
+enum Platform {
+  IOS
+  ANDROID
+  WEB
+}
+
+enum MembershipProductType {
+  IOS_INAPP
+  AOS_INAPP
+  TOSS
+  EVENT
+  CS
+}
+
+enum ProductPeriod {
+  P1W
+  P1M
+  P3M
+  P6M
+  P12M
+  UNDEFINED
+}
+
+enum ProductStatus {
+  CREATED
+  ACTIVE
+  ARCHIVED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  PENDING
+  EXPIRED
+  INACTIVE
+  REFUNDED
+}
+
+enum TransactionType {
+  SUBSCRIPTION_START
+  SUBSCRIPTION_RENEW
+  SUBSCRIPTION_EXPIRE
+  SUBSCRIPTION_REFUND
+  SUBSCRIPTION_UPGRADE
+  SUBSCRIPTION_DOWNGRADE
+  TRIAL_START
+  TRIAL_CONVERT
+}
+
+enum TransactionStatus {
+  PENDING
   COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
 }
 
 enum WorkspaceRole {
@@ -92,8 +143,9 @@ model User {
   weeklyReviews     WeeklyReview[]
   integrations      Integration[]
   rssFeeds          RssFeed[]
-  interviewSessions InterviewSession[]
-  workspaceMembers  WorkspaceMember[]
+  membership             Membership?
+  membershipTransactions MembershipTransaction[]
+  workspaceMembers       WorkspaceMember[]
   subscribedTo      Subscription[]     @relation("Subscriber")
   subscribers       Subscription[]     @relation("Target")
   notifications     Notification[]
@@ -306,36 +358,101 @@ model RssFeed {
   @@map("rss_feeds")
 }
 
-model InterviewSession {
-  id        Int             @id @default(autoincrement())
-  userId    Int
-  topics    Json
-  status    InterviewStatus @default(IN_PROGRESS)
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+// ─── Membership ───
 
-  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  questions InterviewQuestion[]
+model MembershipProduct {
+  id           Int                     @id @default(autoincrement())
+  key          String                  @unique
+  name         String
+  type         MembershipProductType
+  period       ProductPeriod?
+  trialDays    Int                     @default(0)
+  status       ProductStatus           @default(CREATED)
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
 
-  @@index([userId])
-  @@map("interview_sessions")
+  memberships  Membership[]
+  transactions MembershipTransaction[]
+
+  @@index([key, type])
+  @@map("membership_products")
 }
 
-model InterviewQuestion {
-  id             Int      @id @default(autoincrement())
-  sessionId      Int
-  question       String
-  relatedLinkIds Json
-  answer         String?
-  evaluation     String?
-  gaps           Json?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+model Membership {
+  id             Int              @id @default(autoincrement())
+  userId         Int              @unique
+  productId      Int
+  key            String?          @unique
+  isAutoRenewing Boolean?
+  purchaseToken  String?
+  endAt          DateTime?
+  history        Json?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
-  session InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user             User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product          MembershipProduct              @relation(fields: [productId], references: [id])
+  transactions     MembershipTransaction[]
+  notificationLogs IapNotificationLog[]
 
-  @@index([sessionId])
-  @@map("interview_questions")
+  @@index([productId])
+  @@index([userId])
+  @@map("memberships")
+}
+
+model MembershipTransaction {
+  id              Int               @id @default(autoincrement())
+  membershipId    Int
+  userId          Int?
+  productId       Int
+  originalTrxId   String
+  trxId           String            @unique
+  purchaseToken   String?
+  platform        Platform          @default(ANDROID)
+  type            TransactionType   @default(SUBSCRIPTION_START)
+  status          TransactionStatus @default(COMPLETED)
+  beginAt         DateTime
+  endAt           DateTime
+  chargedAmount   Int
+  currency        String            @default("KRW")
+  offerId         String?
+  refundedAt      DateTime?
+  refundAmount    Int?
+  storeData       Json?
+  lastProcessedAt DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  membership Membership        @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  product    MembershipProduct @relation(fields: [productId], references: [id])
+  user       User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([membershipId])
+  @@index([originalTrxId])
+  @@index([userId])
+  @@index([productId])
+  @@index([type])
+  @@index([status])
+  @@map("membership_transactions")
+}
+
+model IapNotificationLog {
+  id            Int         @id @default(autoincrement())
+  membershipId  Int?
+  type          String?
+  purchaseToken String?
+  originalTrxId String?
+  body          Json?
+  payload       Json?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  membership Membership? @relation(fields: [membershipId], references: [id])
+
+  @@index([membershipId])
+  @@index([purchaseToken])
+  @@index([originalTrxId])
+  @@map("iap_notification_logs")
 }
 
 // ─── Phase 4: Developer Platform ───

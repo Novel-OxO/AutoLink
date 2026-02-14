@@ -502,71 +502,230 @@ GitHub 등 외부 서비스 연동 정보를 저장한다.
 
 ---
 
-## 14. InterviewSession (면접 세션)
+## 14. MembershipProduct (멤버십 상품)
 
-### 테이블: `interview_sessions`
+### 테이블: `membership_products`
 
-면접 준비 모드의 세션을 관리한다.
+플랫폼별 멤버십 상품을 관리한다.
 
-| 컬럼      | 타입                   | 제약조건                       | 설명                                      |
-| --------- | ---------------------- | ------------------------------ | ----------------------------------------- |
-| id        | Int                    | PK, Auto Increment             | 세션 고유 ID                              |
-| userId    | Int                    | FK → users.id, Not Null        | 세션 소유자                               |
-| topics    | Json                   | Not Null                       | 출제 주제 배열 (예: ["NestJS", "Docker"]) |
-| status    | InterviewStatus (Enum) | Not Null, Default: IN_PROGRESS | 세션 상태                                 |
-| createdAt | DateTime               | Not Null, Default: now()       | 시작일시                                  |
-| updatedAt | DateTime               | Not Null, Auto Update          | 최종 수정일시                             |
+| 컬럼      | 타입                         | 제약조건                   | 설명                                              |
+| --------- | ---------------------------- | -------------------------- | ------------------------------------------------- |
+| id        | Int                          | PK, Auto Increment         | 상품 고유 ID                                      |
+| key       | String                       | Unique, Not Null           | 상품 고유 키 (예: "premium_monthly_ios")          |
+| name      | String                       | Not Null                   | 상품 이름                                         |
+| type      | MembershipProductType (Enum) | Not Null                   | 상품 유형 (IOS_INAPP, AOS_INAPP, TOSS, EVENT, CS) |
+| period    | ProductPeriod (Enum)         | Nullable                   | 구독 기간 (P1W, P1M, P3M, P6M, P12M, UNDEFINED)   |
+| trialDays | Int                          | Not Null, Default: 0       | 무료 체험 기간 (일)                               |
+| status    | ProductStatus (Enum)         | Not Null, Default: CREATED | 상품 상태 (CREATED, ACTIVE, ARCHIVED)             |
+| createdAt | DateTime                     | Not Null, Default: now()   | 생성일시                                          |
+| updatedAt | DateTime                     | Not Null, Auto Update      | 최종 수정일시                                     |
 
-### Enum: InterviewStatus
+### Enum: MembershipProductType
 
-| 값          | 설명    |
-| ----------- | ------- |
-| IN_PROGRESS | 진행 중 |
-| COMPLETED   | 완료    |
+| 값        | 설명                    |
+| --------- | ----------------------- |
+| IOS_INAPP | Apple App Store (IAP)   |
+| AOS_INAPP | Google Play Store (IAP) |
+| TOSS      | 토스페이먼츠 (웹 결제)  |
+| EVENT     | 이벤트 지급             |
+| CS        | CS 수동 지급            |
+
+### Enum: ProductPeriod
+
+| 값        | 설명   |
+| --------- | ------ |
+| P1W       | 1주    |
+| P1M       | 1개월  |
+| P3M       | 3개월  |
+| P6M       | 6개월  |
+| P12M      | 12개월 |
+| UNDEFINED | 미정   |
+
+### Enum: ProductStatus
+
+| 값       | 설명               |
+| -------- | ------------------ |
+| CREATED  | 생성됨 (미활성)    |
+| ACTIVE   | 판매 중            |
+| ARCHIVED | 보관됨 (판매 중단) |
 
 ### 인덱스
 
-| 인덱스                        | 컬럼   | 타입  |
-| ----------------------------- | ------ | ----- |
-| interview_sessions_userId_idx | userId | Index |
-
-### 외래키
-
-| FK                | 참조     | 삭제 정책 |
-| ----------------- | -------- | --------- |
-| userId → users.id | users.id | Cascade   |
+| 인덱스                           | 컬럼        | 타입   |
+| -------------------------------- | ----------- | ------ |
+| membership_products_key_key      | key         | Unique |
+| membership_products_key_type_idx | (key, type) | Index  |
 
 ---
 
-## 15. InterviewQuestion (면접 질문)
+## 15. Membership (멤버십)
 
-### 테이블: `interview_questions`
+### 테이블: `memberships`
 
-면접 세션 내 개별 질문과 답변/평가를 저장한다.
+사용자의 멤버십 구독 상태를 관리한다. 유저당 하나의 멤버십만 존재한다 (`userId` Unique).
 
-| 컬럼           | 타입     | 제약조건                             | 설명                                                          |
-| -------------- | -------- | ------------------------------------ | ------------------------------------------------------------- |
-| id             | Int      | PK, Auto Increment                   | 질문 고유 ID                                                  |
-| sessionId      | Int      | FK → interview_sessions.id, Not Null | 소속 세션 ID                                                  |
-| question       | String   | Not Null                             | AI 생성 면접 질문                                             |
-| relatedLinkIds | Json     | Not Null                             | 관련 링크 ID 배열 (예: [1, 5])                                |
-| answer         | String   | Nullable                             | 사용자 답변 (미답변 시 null)                                  |
-| evaluation     | String   | Nullable                             | AI 평가 피드백                                                |
-| gaps           | Json     | Nullable                             | 보충 필요 키워드 배열 (예: ["실행 순서", "ExecutionContext"]) |
-| createdAt      | DateTime | Not Null, Default: now()             | 생성일시                                                      |
-| updatedAt      | DateTime | Not Null, Auto Update                | 최종 수정일시                                                 |
+| 컬럼           | 타입     | 제약조건                              | 설명                           |
+| -------------- | -------- | ------------------------------------- | ------------------------------ |
+| id             | Int      | PK, Auto Increment                    | 멤버십 고유 ID                 |
+| userId         | Int      | FK → users.id, Unique, Not Null       | 구독 유저 (1:1)                |
+| productId      | Int      | FK → membership_products.id, Not Null | 현재 구독 상품                 |
+| key            | String   | Unique, Nullable                      | 멤버십 고유 키 (스토어 식별용) |
+| isAutoRenewing | Boolean  | Nullable                              | 자동 갱신 여부                 |
+| purchaseToken  | String   | Nullable                              | 스토어 구매 토큰 (Play Store)  |
+| endAt          | DateTime | Nullable                              | 구독 종료일시                  |
+| history        | Json     | Nullable                              | 상태 변경 이력                 |
+| createdAt      | DateTime | Not Null, Default: now()              | 생성일시                       |
+| updatedAt      | DateTime | Not Null, Auto Update                 | 최종 수정일시                  |
 
 ### 인덱스
 
-| 인덱스                            | 컬럼      | 타입  |
-| --------------------------------- | --------- | ----- |
-| interview_questions_sessionId_idx | sessionId | Index |
+| 인덱스                    | 컬럼      | 타입   |
+| ------------------------- | --------- | ------ |
+| memberships_userId_key    | userId    | Unique |
+| memberships_key_key       | key       | Unique |
+| memberships_productId_idx | productId | Index  |
+| memberships_userId_idx    | userId    | Index  |
 
 ### 외래키
 
-| FK                                | 참조                  | 삭제 정책                          |
-| --------------------------------- | --------------------- | ---------------------------------- |
-| sessionId → interview_sessions.id | interview_sessions.id | Cascade (세션 삭제 시 질문도 삭제) |
+| FK                                 | 참조                   | 삭제 정책                          |
+| ---------------------------------- | ---------------------- | ---------------------------------- |
+| userId → users.id                  | users.id               | Cascade (유저 삭제 시 멤버십 삭제) |
+| productId → membership_products.id | membership_products.id | Restrict                           |
+
+### 멤버십 상태 판단
+
+- `endAt`이 현재 시각 이후 → 활성 구독
+- `endAt`이 현재 시각 이전 → 만료
+- `isAutoRenewing = true` → 자동 갱신 예정
+- `history`에 상태 변경 이력(업그레이드, 다운그레이드, 환불 등)이 JSON 배열로 기록된다
+
+---
+
+## 16. MembershipTransaction (멤버십 트랜잭션)
+
+### 테이블: `membership_transactions`
+
+멤버십 결제/갱신/환불 트랜잭션을 기록한다.
+
+| 컬럼            | 타입                     | 제약조건                              | 설명                                |
+| --------------- | ------------------------ | ------------------------------------- | ----------------------------------- |
+| id              | Int                      | PK, Auto Increment                    | 트랜잭션 고유 ID                    |
+| membershipId    | Int                      | FK → memberships.id, Not Null         | 소속 멤버십                         |
+| userId          | Int                      | FK → users.id, Nullable               | 결제 유저                           |
+| productId       | Int                      | FK → membership_products.id, Not Null | 결제 상품                           |
+| originalTrxId   | String                   | Not Null                              | 최초 트랜잭션 ID (갱신 체인 추적용) |
+| trxId           | String                   | Unique, Not Null                      | 스토어 트랜잭션 ID                  |
+| purchaseToken   | String                   | Nullable                              | 스토어 구매 토큰                    |
+| platform        | Platform (Enum)          | Not Null, Default: ANDROID            | 결제 플랫폼 (IOS, ANDROID, WEB)     |
+| type            | TransactionType (Enum)   | Not Null, Default: SUBSCRIPTION_START | 트랜잭션 유형                       |
+| status          | TransactionStatus (Enum) | Not Null, Default: COMPLETED          | 트랜잭션 상태                       |
+| beginAt         | DateTime                 | Not Null                              | 구독 시작일시                       |
+| endAt           | DateTime                 | Not Null                              | 구독 종료일시                       |
+| chargedAmount   | Int                      | Not Null                              | 결제 금액 (최소 통화 단위)          |
+| currency        | String                   | Not Null, Default: "KRW"              | 통화 코드                           |
+| offerId         | String                   | Nullable                              | 프로모션/오퍼 ID                    |
+| refundedAt      | DateTime                 | Nullable                              | 환불 시각                           |
+| refundAmount    | Int                      | Nullable                              | 환불 금액                           |
+| storeData       | Json                     | Nullable                              | 스토어 원본 응답 데이터             |
+| lastProcessedAt | DateTime                 | Nullable                              | 마지막 처리 시각 (웹훅 등)          |
+| createdAt       | DateTime                 | Not Null, Default: now()              | 생성일시                            |
+| updatedAt       | DateTime                 | Not Null, Auto Update                 | 최종 수정일시                       |
+
+### Enum: Platform
+
+| 값      | 설명         |
+| ------- | ------------ |
+| IOS     | Apple iOS    |
+| ANDROID | Android      |
+| WEB     | 웹 (토스 등) |
+
+### Enum: TransactionType
+
+| 값                     | 설명         |
+| ---------------------- | ------------ |
+| SUBSCRIPTION_START     | 최초 구독    |
+| SUBSCRIPTION_RENEW     | 갱신         |
+| SUBSCRIPTION_EXPIRE    | 만료         |
+| SUBSCRIPTION_REFUND    | 환불         |
+| SUBSCRIPTION_UPGRADE   | 업그레이드   |
+| SUBSCRIPTION_DOWNGRADE | 다운그레이드 |
+| TRIAL_START            | 체험 시작    |
+| TRIAL_CONVERT          | 체험 → 유료  |
+
+### Enum: MembershipStatus
+
+| 값       | 설명    |
+| -------- | ------- |
+| ACTIVE   | 활성    |
+| PENDING  | 처리 중 |
+| EXPIRED  | 만료    |
+| INACTIVE | 비활성  |
+| REFUNDED | 환불됨  |
+
+### Enum: TransactionStatus
+
+| 값        | 설명 |
+| --------- | ---- |
+| PENDING   | 대기 |
+| COMPLETED | 완료 |
+| FAILED    | 실패 |
+| REFUNDED  | 환불 |
+| CANCELLED | 취소 |
+
+### 인덱스
+
+| 인덱스                                    | 컬럼          | 타입   |
+| ----------------------------------------- | ------------- | ------ |
+| membership_transactions_trxId_key         | trxId         | Unique |
+| membership_transactions_membershipId_idx  | membershipId  | Index  |
+| membership_transactions_originalTrxId_idx | originalTrxId | Index  |
+| membership_transactions_userId_idx        | userId        | Index  |
+| membership_transactions_productId_idx     | productId     | Index  |
+| membership_transactions_type_idx          | type          | Index  |
+| membership_transactions_status_idx        | status        | Index  |
+
+### 외래키
+
+| FK                                 | 참조                   | 삭제 정책                                |
+| ---------------------------------- | ---------------------- | ---------------------------------------- |
+| membershipId → memberships.id      | memberships.id         | Cascade (멤버십 삭제 시 트랜잭션도 삭제) |
+| productId → membership_products.id | membership_products.id | Restrict                                 |
+| userId → users.id                  | users.id               | SetNull (유저 삭제 시 null)              |
+
+---
+
+## 16-1. IapNotificationLog (IAP 알림 로그)
+
+### 테이블: `iap_notification_logs`
+
+Apple/Google 스토어에서 수신한 서버 알림(Server-to-Server Notification)을 로깅한다.
+
+| 컬럼          | 타입     | 제약조건                      | 설명                    |
+| ------------- | -------- | ----------------------------- | ----------------------- |
+| id            | Int      | PK, Auto Increment            | 로그 고유 ID            |
+| membershipId  | Int      | FK → memberships.id, Nullable | 연관 멤버십             |
+| type          | String   | Nullable                      | 알림 유형 (스토어 정의) |
+| purchaseToken | String   | Nullable                      | 구매 토큰               |
+| originalTrxId | String   | Nullable                      | 최초 트랜잭션 ID        |
+| body          | Json     | Nullable                      | 알림 원본 body          |
+| payload       | Json     | Nullable                      | 파싱된 페이로드         |
+| createdAt     | DateTime | Not Null, Default: now()      | 생성일시                |
+| updatedAt     | DateTime | Not Null, Auto Update         | 최종 수정일시           |
+
+### 인덱스
+
+| 인덱스                                  | 컬럼          | 타입  |
+| --------------------------------------- | ------------- | ----- |
+| iap_notification_logs_membershipId_idx  | membershipId  | Index |
+| iap_notification_logs_purchaseToken_idx | purchaseToken | Index |
+| iap_notification_logs_originalTrxId_idx | originalTrxId | Index |
+
+### 외래키
+
+| FK                            | 참조           | 삭제 정책 |
+| ----------------------------- | -------------- | --------- |
+| membershipId → memberships.id | memberships.id | SetNull   |
 
 ---
 
@@ -574,7 +733,7 @@ GitHub 등 외부 서비스 연동 정보를 저장한다.
 
 ---
 
-## 16. Workspace (워크스페이스)
+## 17. Workspace (워크스페이스)
 
 ### 테이블: `workspaces`
 
@@ -594,7 +753,7 @@ GitHub 등 외부 서비스 연동 정보를 저장한다.
 
 ---
 
-## 17. WorkspaceMember (워크스페이스 멤버)
+## 18. WorkspaceMember (워크스페이스 멤버)
 
 ### 테이블: `workspace_members`
 
@@ -632,7 +791,7 @@ GitHub 등 외부 서비스 연동 정보를 저장한다.
 
 ---
 
-## 18. WorkspaceInvite (워크스페이스 초대)
+## 19. WorkspaceInvite (워크스페이스 초대)
 
 ### 테이블: `workspace_invites`
 
@@ -678,7 +837,7 @@ GitHub 등 외부 서비스 연동 정보를 저장한다.
 
 ---
 
-## 19. Subscription (구독)
+## 20. Subscription (구독)
 
 ### 테이블: `subscriptions`
 
@@ -713,7 +872,7 @@ GitHub 등 외부 서비스 연동 정보를 저장한다.
 
 ---
 
-## 20. Notification (알림)
+## 21. Notification (알림)
 
 ### 테이블: `notifications`
 
@@ -787,7 +946,7 @@ GitHub 등 외부 서비스 연동 정보를 저장한다.
 
 ---
 
-## 21. 테이블 관계
+## 22. 테이블 관계
 
 ```
 [기존 — 현재 기능]
@@ -810,8 +969,14 @@ users  (1) ──── (N) weekly_reviews
 [Phase 3 — 세컨드 브레인]
 users  (1) ──── (N) integrations
 users  (1) ──── (N) rss_feeds
-users  (1) ──── (N) interview_sessions
-interview_sessions (1) ──── (N) interview_questions
+
+[Membership]
+membership_products (1) ──── (N) memberships
+membership_products (1) ──── (N) membership_transactions
+users  (1) ──── (1) memberships
+users  (1) ──── (N) membership_transactions
+memberships (1) ──── (N) membership_transactions
+memberships (1) ──── (N) iap_notification_logs
 
 [Phase 4 — 개발자 플랫폼]
 workspaces (1) ──── (N) workspace_members
@@ -831,12 +996,14 @@ users  (1) ──── (N) notifications
 - translations는 독립 테이블로, 유저와 직접 관계 없이 key + locale로 번역을 관리한다
 - 하나의 링크는 여러 텍스트 청크로 분할되어 벡터 임베딩이 저장된다
 - 대화(Conversation)는 여러 메시지를 포함하며, 메시지 간 맥락이 유지된다
+- 유저당 하나의 멤버십만 존재하며 (1:1), 멤버십 상품은 유형별(IOS_INAPP, AOS_INAPP, TOSS, EVENT, CS)로 관리된다
+- 멤버십 트랜잭션은 갱신 체인을 `originalTrxId`로 추적하며, 스토어 알림은 `iap_notification_logs`에 로깅된다
 - 구독은 자기 참조 관계로, 같은 users 테이블의 두 레코드를 연결한다
 - 워크스페이스는 Phase 4에서 links, folders에 workspaceId를 추가하여 연결한다
 
 ---
 
-## 22. 가입/로그인 시나리오
+## 23. 가입/로그인 시나리오
 
 | 시나리오                          | users                                | oauths                                 |
 | --------------------------------- | ------------------------------------ | -------------------------------------- |
@@ -844,439 +1011,3 @@ users  (1) ──── (N) notifications
 | Apple 최초 로그인                 | email + nickname 저장                | provider=APPLE, providerId 저장        |
 | 기존 유저가 다른 제공자 추가 연동 | 기존 유저 유지                       | 해당 userId로 레코드 추가              |
 | 탈퇴                              | deletedAt에 현재 시각 기록           | 유지 (Cascade는 물리 삭제 시에만 동작) |
-
----
-
-## 23. Prisma Schema
-
-```prisma
-// ─── Enums (기존) ───
-
-enum OAuthProvider {
-  GOOGLE
-  APPLE
-}
-
-enum Locale {
-  KO
-  EN
-}
-
-enum Visibility {
-  PRIVATE
-  PUBLIC
-}
-
-enum CrawlStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  FAILED
-}
-
-// ─── Enums (신규) ───
-
-enum MessageRole {
-  USER
-  ASSISTANT
-}
-
-enum Feedback {
-  UP
-  DOWN
-}
-
-enum IntegrationType {
-  GITHUB
-}
-
-enum InterviewStatus {
-  IN_PROGRESS
-  COMPLETED
-}
-
-enum WorkspaceRole {
-  ADMIN
-  MEMBER
-}
-
-enum InviteStatus {
-  PENDING
-  ACCEPTED
-  EXPIRED
-}
-
-enum NotificationType {
-  SUBSCRIPTION_NEW_LINK
-  CONTENT_UPDATED
-  UNREAD_REMINDER
-  UNUSED_LINKS
-  WEAKNESS_DETECTED
-  WORKSPACE_INVITE
-  RSS_NEW_ITEMS
-}
-
-// ─── 기존 모델 ───
-
-model User {
-  id             Int       @id @default(autoincrement())
-  email          String    @unique
-  nickname       String
-  profileImage   String?
-  locale         Locale    @default(KO)
-  profilePublic  Boolean   @default(false)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  deletedAt      DateTime?
-
-  oauths             OAuth[]
-  folders            Folder[]
-  links              Link[]
-  conversations      Conversation[]
-  weeklyReviews      WeeklyReview[]
-  integrations       Integration[]
-  rssFeeds           RssFeed[]
-  interviewSessions  InterviewSession[]
-  workspaceMembers   WorkspaceMember[]
-  subscribedTo       Subscription[]     @relation("Subscriber")
-  subscribers        Subscription[]     @relation("Target")
-  notifications      Notification[]
-
-  @@map("users")
-}
-
-model OAuth {
-  id             Int           @id @default(autoincrement())
-  userId         Int
-  provider       OAuthProvider
-  providerId     String
-
-  createdAt      DateTime      @default(now())
-
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerId])
-  @@index([userId])
-  @@map("oauths")
-}
-
-model Translation {
-  id             Int       @id @default(autoincrement())
-  key            String
-  locale         Locale
-  value          String
-
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  @@unique([key, locale])
-  @@index([locale])
-  @@map("translations")
-}
-
-model Folder {
-  id             Int        @id @default(autoincrement())
-  userId         Int
-  parentId       Int?
-  name           String
-  isDocked       Boolean    @default(false)
-  visibility     Visibility @default(PRIVATE)
-  shareToken     String?    @unique
-
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-
-  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent         Folder?    @relation("FolderTree", fields: [parentId], references: [id], onDelete: SetNull)
-  children       Folder[]   @relation("FolderTree")
-  links          Link[]
-
-  @@index([userId])
-  @@index([parentId])
-  @@map("folders")
-}
-
-model Link {
-  id             Int         @id @default(autoincrement())
-  userId         Int
-  folderId       Int?
-  url            String
-  ogTitle        String?
-  ogDescription  String?
-  ogImage        String?
-  summary        String?
-  memo           String?
-  crawlStatus    CrawlStatus @default(PENDING)
-  visibility     Visibility  @default(PRIVATE)
-  readAt         DateTime?
-  contentUpdated Boolean     @default(false)
-
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  deletedAt      DateTime?
-
-  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  folder         Folder?     @relation(fields: [folderId], references: [id], onDelete: SetNull)
-  linkTags       LinkTag[]
-  embeddings     LinkEmbedding[]
-
-  @@unique([userId, url])
-  @@index([userId])
-  @@index([folderId])
-  @@index([deletedAt])
-  @@index([createdAt])
-  @@map("links")
-}
-
-model Tag {
-  id             Int       @id @default(autoincrement())
-  name           String    @unique
-
-  createdAt      DateTime  @default(now())
-
-  linkTags       LinkTag[]
-
-  @@map("tags")
-}
-
-model LinkTag {
-  id             Int      @id @default(autoincrement())
-  linkId         Int
-  tagId          Int
-
-  createdAt      DateTime @default(now())
-
-  link           Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
-  tag            Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@unique([linkId, tagId])
-  @@index([linkId])
-  @@index([tagId])
-  @@map("link_tags")
-}
-
-// ─── Phase 1: RAG ───
-
-model LinkEmbedding {
-  id             Int                          @id @default(autoincrement())
-  linkId         Int
-  chunkIndex     Int
-  chunkText      String
-  embedding      Unsupported("vector(1536)")
-
-  createdAt      DateTime                     @default(now())
-
-  link           Link                         @relation(fields: [linkId], references: [id], onDelete: Cascade)
-
-  @@unique([linkId, chunkIndex])
-  @@index([linkId])
-  @@map("link_embeddings")
-}
-
-model Conversation {
-  id             Int       @id @default(autoincrement())
-  userId         Int
-  title          String?
-
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages       Message[]
-
-  @@index([userId])
-  @@map("conversations")
-}
-
-model Message {
-  id             Int          @id @default(autoincrement())
-  conversationId Int
-  role           MessageRole
-  content        String
-  sources        Json?
-  feedback       Feedback?
-
-  createdAt      DateTime     @default(now())
-
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-
-  @@index([conversationId])
-  @@map("messages")
-}
-
-// ─── Phase 2: 학습 가속기 ───
-
-model WeeklyReview {
-  id             Int      @id @default(autoincrement())
-  userId         Int
-  week           String
-  savedLinks     Int      @default(0)
-  readLinks      Int      @default(0)
-  questionsAsked Int      @default(0)
-  topTopics      Json
-  summary        String
-
-  createdAt      DateTime @default(now())
-
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, week])
-  @@index([userId])
-  @@map("weekly_reviews")
-}
-
-// ─── Phase 3: 세컨드 브레인 ───
-
-model Integration {
-  id               Int             @id @default(autoincrement())
-  userId           Int
-  type             IntegrationType
-  accessToken      String
-  refreshToken     String?
-  externalUsername  String?
-
-  connectedAt      DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-
-  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, type])
-  @@index([userId])
-  @@map("integrations")
-}
-
-model RssFeed {
-  id             Int       @id @default(autoincrement())
-  userId         Int
-  feedUrl        String
-  title          String?
-  lastFetchedAt  DateTime?
-
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, feedUrl])
-  @@index([userId])
-  @@map("rss_feeds")
-}
-
-model InterviewSession {
-  id             Int             @id @default(autoincrement())
-  userId         Int
-  topics         Json
-  status         InterviewStatus @default(IN_PROGRESS)
-
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-
-  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  questions      InterviewQuestion[]
-
-  @@index([userId])
-  @@map("interview_sessions")
-}
-
-model InterviewQuestion {
-  id             Int              @id @default(autoincrement())
-  sessionId      Int
-  question       String
-  relatedLinkIds Json
-  answer         String?
-  evaluation     String?
-  gaps           Json?
-
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-
-  session        InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  @@index([sessionId])
-  @@map("interview_questions")
-}
-
-// ─── Phase 4: 개발자 플랫폼 ───
-
-model Workspace {
-  id             Int               @id @default(autoincrement())
-  name           String
-  description    String?
-
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-
-  members        WorkspaceMember[]
-  invites        WorkspaceInvite[]
-
-  @@map("workspaces")
-}
-
-model WorkspaceMember {
-  id             Int           @id @default(autoincrement())
-  workspaceId    Int
-  userId         Int
-  role           WorkspaceRole @default(MEMBER)
-
-  joinedAt       DateTime      @default(now())
-
-  workspace      Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([workspaceId, userId])
-  @@index([workspaceId])
-  @@index([userId])
-  @@map("workspace_members")
-}
-
-model WorkspaceInvite {
-  id             Int           @id @default(autoincrement())
-  workspaceId    Int
-  email          String
-  role           WorkspaceRole @default(MEMBER)
-  token          String        @unique
-  status         InviteStatus  @default(PENDING)
-  expiresAt      DateTime
-
-  createdAt      DateTime      @default(now())
-
-  workspace      Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId])
-  @@map("workspace_invites")
-}
-
-model Subscription {
-  id             Int      @id @default(autoincrement())
-  subscriberId   Int
-  targetId       Int
-
-  createdAt      DateTime @default(now())
-
-  subscriber     User     @relation("Subscriber", fields: [subscriberId], references: [id], onDelete: Cascade)
-  target         User     @relation("Target", fields: [targetId], references: [id], onDelete: Cascade)
-
-  @@unique([subscriberId, targetId])
-  @@index([subscriberId])
-  @@index([targetId])
-  @@map("subscriptions")
-}
-
-model Notification {
-  id             Int              @id @default(autoincrement())
-  userId         Int
-  type           NotificationType
-  message        String
-  data           Json?
-  read           Boolean          @default(false)
-
-  createdAt      DateTime         @default(now())
-
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([userId, read])
-  @@index([createdAt])
-  @@map("notifications")
-}
-```
