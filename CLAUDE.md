@@ -33,9 +33,8 @@ bun run test           # 전체 테스트
 bun run format         # Biome 포맷
 bun run format:check   # 포맷 검사만
 
-# 단일 패키지 실행
-bun run --filter '@autolink/server' test       # 서버 테스트만
-bun run --filter '@autolink/server' test -- --testPathPattern=auth  # 특정 테스트
+# 서버 테스트
+bun run test:server    # 서버 통합 테스트 (Docker 필요)
 
 # DB (Prisma)
 bun run db:generate    # Prisma 클라이언트 생성
@@ -49,7 +48,7 @@ docker compose up -d    # PostgreSQL(15432) + Redis(16379)
 
 ## Architecture
 
-**Server**: Hono 함수형 패턴. tsup 빌드 + tsx watch 개발. Prisma ORM + PostgreSQL(pgvector) + Redis(Bull 큐). OAuth(Google/Apple) + 세션 기반 인증. 환경변수는 루트 `.env`에서 Zod 스키마(`src/lib/env.ts`)로 검증·로드. `@hono/zod-validator`로 `@autolink/shared` Zod 스키마 직접 활용. `AppType` export로 RPC 클라이언트 타입 추론 지원.
+**Server**: Hono 함수형 패턴. `bun --watch` 개발. Prisma ORM + PostgreSQL(pgvector) + Redis(Bull 큐). OAuth(Google/Apple) + 세션 기반 인증. 환경변수는 루트 `.env.dev`/`.env.prod`에서 Zod 스키마(`src/shared/lib/env.ts`)로 검증·로드. `@hono/zod-validator`로 `@autolink/shared` Zod 스키마 직접 활용. `AppType` export로 RPC 클라이언트 타입 추론 지원.
 
 **Web**: Next.js 15 App Router. Tailwind CSS v4 + Zustand(클라이언트 상태) + TanStack Query(서버 상태).
 
@@ -70,7 +69,7 @@ Turborepo 없이 `package.json` 스크립트 체이닝으로 빌드 순서를 �
 - **커밋**: Conventional Commits 필수 (commitlint 훅). subject는 소문자로 시작. 허용 스코프: `server`, `web`, `app`, `shared`, `config`, `docs`, `deps`, `ci`
 - **린트/포맷**: Biome (세미콜론, 싱글쿼트, trailing comma, 100자). pre-commit 훅으로 lint-staged → `biome check --write` 자동 실행
 - **경로 별칭**: 모든 패키지에서 `@/*` → `src/*`
-- **테스트**: Jest + ts-jest. 파일명 `*.spec.ts`. rootDir은 `src/`
+- **테스트**: Vitest. 파일명 `*.spec.ts`. 통합 테스트는 `test/` 디렉토리(src와 같은 레벨). `bun run test:server`로 서버 테스트 실행
 - **TypeScript**: strict 모드, ES2022 타겟
 - **타입 분리**: 인터페이스/타입은 로직 파일과 분리하여 `*.types.ts` 파일에 정의. 로직 파일에서 `export type { ... }` re-export로 외부 API 유지. 단, 해당 파일 내부에서만 사용되는 private 타입은 같은 파일에 둘 수 있음
 
