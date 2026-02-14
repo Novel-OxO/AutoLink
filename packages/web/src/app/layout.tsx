@@ -7,10 +7,10 @@ export const metadata: Metadata = {
   description: 'AI-powered knowledge management for developers',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body className="min-h-screen bg-background font-sans antialiased">{children}</body>
     </html>
   );
 }
