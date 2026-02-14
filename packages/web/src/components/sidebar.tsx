@@ -2,9 +2,9 @@
 
 import { Bell, Briefcase, Link, LogIn, LogOut, Search, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
 import { LoginModal } from '@/components/auth/login-modal';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -19,8 +19,8 @@ const menuItems = [
 
 export function Sidebar(): React.JSX.Element {
   const pathname = usePathname();
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const isLoggedIn = false; // TODO: 실제 인증 상태로 교체
+  const { isLoggedIn, isLoading, isLoginModalOpen, openLoginModal, closeLoginModal, logout } =
+    useAuth();
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 flex w-60 flex-col bg-neutral-95 text-neutral-10">
@@ -77,9 +77,15 @@ export function Sidebar(): React.JSX.Element {
 
         {/* Login/Logout */}
         <div className="px-1 pb-6">
-          {isLoggedIn ? (
+          {isLoading ? (
+            <div className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-30">
+              <div className="size-5 animate-pulse rounded bg-neutral-70" />
+              <div className="h-4 w-12 animate-pulse rounded bg-neutral-70" />
+            </div>
+          ) : isLoggedIn ? (
             <button
               type="button"
+              onClick={logout}
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-30 transition-colors hover:bg-neutral-80 hover:text-neutral-10"
             >
               <LogOut className="size-5" />
@@ -88,7 +94,7 @@ export function Sidebar(): React.JSX.Element {
           ) : (
             <button
               type="button"
-              onClick={() => setIsLoginModalOpen(true)}
+              onClick={openLoginModal}
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-30 transition-colors hover:bg-neutral-80 hover:text-neutral-10"
             >
               <LogIn className="size-5" />
@@ -99,7 +105,7 @@ export function Sidebar(): React.JSX.Element {
       </nav>
 
       {/* Login Modal */}
-      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+      <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />
     </aside>
   );
 }

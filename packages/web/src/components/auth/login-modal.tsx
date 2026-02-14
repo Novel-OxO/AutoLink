@@ -1,10 +1,9 @@
 'use client';
 
 import { X } from 'lucide-react';
-import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { env } from '@/lib/env';
+import { useAuth } from '@/hooks/useAuth';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -12,13 +11,7 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ isOpen, onClose }: LoginModalProps): React.JSX.Element | null {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleGoogleLogin = () => {
-    setIsLoading(true);
-    // Google OAuth 로그인 페이지로 리다이렉트
-    window.location.href = env.googleAuthUrl;
-  };
+  const { login, isLoading } = useAuth();
 
   if (!isOpen) return null;
 
@@ -57,7 +50,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps): React.JSX.Elem
 
         {/* Google 로그인 버튼 */}
         <Button
-          onClick={handleGoogleLogin}
+          onClick={login}
           disabled={isLoading}
           variant="outline"
           className="flex w-full items-center justify-center gap-3 bg-white text-gray-700 hover:bg-gray-50 border-gray-300"
