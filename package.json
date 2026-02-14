@@ -1,26 +1,35 @@
 {
   "name": "autolink",
   "private": true,
-  "packageManager": "pnpm@10.28.2",
-  "engines": {
-    "node": ">=20",
-    "pnpm": ">=10"
-  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "trustedDependencies": [
+    "@prisma/engines",
+    "prisma",
+    "esbuild",
+    "sharp",
+    "unrs-resolver",
+    "msgpackr-extract"
+  ],
   "scripts": {
-    "dev": "turbo run dev",
-    "dev:server": "turbo run dev --filter=@autolink/server",
-    "dev:web": "turbo run dev --filter=@autolink/web",
-    "dev:app": "turbo run dev --filter=@autolink/app",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
+    "dev": "bun run build:shared && bun run db:generate && bun run dev:all",
+    "dev:all": "bun run --filter '@autolink/shared' dev & bun run --filter '@autolink/server' dev & bun run --filter '@autolink/web' dev & bun run --filter '@autolink/app' dev & wait",
+    "dev:server": "bun run build:shared && bun run db:generate && bun run --filter '@autolink/server' dev",
+    "dev:web": "bun run build:shared && bun run --filter '@autolink/web' dev",
+    "dev:app": "bun run build:shared && bun run --filter '@autolink/app' dev",
+    "build": "bun run build:shared && bun run db:generate && bun run build:consumers",
+    "build:shared": "bun run --filter '@autolink/shared' build",
+    "build:consumers": "bun run --filter '@autolink/web' build",
+    "lint": "bun run build:shared && bun run --filter '*' lint",
+    "test": "bun run build:shared && bun run --filter '*' test",
+    "clean": "bun run --filter '*' clean && rm -rf node_modules",
+    "db:generate": "bun run --filter '@autolink/server' db:generate",
+    "db:migrate": "cd packages/server && bunx prisma migrate dev && cd ../.. && bun run db:generate",
+    "db:push": "cd packages/server && bunx prisma db push && cd ../.. && bun run db:generate",
+    "db:studio": "cd packages/server && bunx prisma studio",
     "format": "prettier --write \"packages/*/src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"packages/*/src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "clean": "turbo run clean && rm -rf node_modules",
-    "db:generate": "pnpm --filter @autolink/server exec prisma generate",
-    "db:migrate": "pnpm --filter @autolink/server exec prisma migrate dev && pnpm run db:generate",
-    "db:push": "pnpm --filter @autolink/server exec prisma db push && pnpm run db:generate",
-    "db:studio": "pnpm --filter @autolink/server exec prisma studio",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -28,8 +37,7 @@
     "@commitlint/config-conventional": "^19.6.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
-    "prettier": "^3.4.2",
-    "turbo": "^2.4.4"
+    "prettier": "^3.4.2"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
@@ -37,16 +45,6 @@
     ],
     "*.{json,md,yaml,yml}": [
       "prettier --write"
-    ]
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@prisma/engines",
-      "prisma",
-      "esbuild",
-      "sharp",
-      "unrs-resolver",
-      "msgpackr-extract"
     ]
   }
 }

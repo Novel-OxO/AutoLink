@@ -7,8 +7,8 @@ dist/
 .expo/
 out/
 
-# Turbo
-.turbo/
+# Bun
+*.lockb
 
 # Environment
 .env
@@ -35,7 +35,7 @@ packages/server/src/generated/
 
 # Debug
 npm-debug.log*
-pnpm-debug.log*
+bun-debug.log*
 yarn-debug.log*
 yarn-error.log*
 

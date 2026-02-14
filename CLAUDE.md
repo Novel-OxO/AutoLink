@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-AutoLink는 AI 기반 링크/지식 관리 플랫폼이다. pnpm 워크스페이스 + Turborepo 모노레포 구조.
+AutoLink는 AI 기반 링크/지식 관리 플랫폼이다. Bun 워크스페이스 모노레포 구조.
 
 ## Monorepo Packages
 
@@ -21,27 +21,27 @@ AutoLink는 AI 기반 링크/지식 관리 플랫폼이다. pnpm 워크스페이
 
 ```bash
 # 개발 서버
-pnpm dev                # 전체 dev 서버 실행
-pnpm dev:server         # Hono만
-pnpm dev:web            # Next.js만
-pnpm dev:app            # Expo만
+bun dev                # 전체 dev 서버 실행
+bun dev:server         # Hono만
+bun dev:web            # Next.js만
+bun dev:app            # Expo만
 
 # 빌드/린트/테스트
-pnpm build              # 전체 빌드
-pnpm lint               # 전체 린트
-pnpm test               # 전체 테스트
-pnpm format             # Prettier 포맷
-pnpm format:check       # 포맷 검사만
+bun run build          # 전체 빌드
+bun run lint           # 전체 린트
+bun run test           # 전체 테스트
+bun run format         # Prettier 포맷
+bun run format:check   # 포맷 검사만
 
 # 단일 패키지 실행
-pnpm --filter @autolink/server test       # 서버 테스트만
-pnpm --filter @autolink/server test -- --testPathPattern=auth  # 특정 테스트
+bun run --filter '@autolink/server' test       # 서버 테스트만
+bun run --filter '@autolink/server' test -- --testPathPattern=auth  # 특정 테스트
 
 # DB (Prisma)
-pnpm db:generate        # Prisma 클라이언트 생성
-pnpm db:migrate         # 마이그레이션 실행
-pnpm db:push            # 스키마 푸시
-pnpm db:studio          # Prisma Studio
+bun run db:generate    # Prisma 클라이언트 생성
+bun run db:migrate     # 마이그레이션 실행
+bun run db:push        # 스키마 푸시
+bun run db:studio      # Prisma Studio
 
 # 인프라
 docker compose up -d    # PostgreSQL(15432) + Redis(16379)
@@ -57,9 +57,13 @@ docker compose up -d    # PostgreSQL(15432) + Redis(16379)
 
 **Shared**: Zod 스키마로 전 플랫폼 검증 통일. tsup으로 CJS/ESM 듀얼 빌드. 별도 엔트리포인트: `schemas/index`, `types/index`, `constants/index`.
 
-## Turbo Task Dependencies
+## Build Orchestration
 
-`build`/`dev`/`lint`/`test` 모두 `db:generate`에 의존. shared 패키지가 먼저 빌드되어야 다른 패키지가 빌드 가능(`^build` 의존성).
+Turborepo 없이 `package.json` 스크립트 체이닝으로 빌드 순서를 보장한다:
+
+- `build:shared` → `build:consumers` 순차 실행으로 shared 패키지가 먼저 빌드
+- `lint`/`test`는 `build:shared` 후 `--filter '*'`로 전체 병렬 실행
+- `dev:all`은 `&` + `wait`로 4개 패키지 동시 실행
 
 ## Conventions
 
