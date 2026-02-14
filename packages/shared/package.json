@@ -31,14 +31,13 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "clean": "rm -rf dist",
-    "lint": "eslint src --ext .ts"
+    "lint": "biome check src"
   },
   "dependencies": {
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@autolink/tsconfig": "workspace:*",
-    "eslint": "^8.57.1",
     "tsup": "^8.3.6",
     "typescript": "^5.7.3"
   }

@@ -5,6 +5,7 @@
     "packages/*"
   ],
   "trustedDependencies": [
+    "@biomejs/biome",
     "@prisma/engines",
     "prisma",
     "esbuild",
@@ -21,30 +22,28 @@
     "build": "bun run build:shared && bun run db:generate && bun run build:consumers",
     "build:shared": "bun run --filter '@autolink/shared' build",
     "build:consumers": "bun run --filter '@autolink/web' build",
-    "lint": "bun run build:shared && bun run --filter '*' lint",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "test": "bun run build:shared && bun run --filter '*' test",
     "clean": "bun run --filter '*' clean && rm -rf node_modules",
     "db:generate": "bun run --filter '@autolink/server' db:generate",
     "db:migrate": "cd packages/server && bunx prisma migrate dev && cd ../.. && bun run db:generate",
     "db:push": "cd packages/server && bunx prisma db push && cd ../.. && bun run db:generate",
     "db:studio": "cd packages/server && bunx prisma studio",
-    "format": "prettier --write \"packages/*/src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "format:check": "prettier --check \"packages/*/src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format": "biome format --write .",
+    "format:check": "biome check --formatter-enabled=true --linter-enabled=false .",
     "prepare": "husky"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.0",
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
     "husky": "^9.1.7",
-    "lint-staged": "^15.4.3",
-    "prettier": "^3.4.2"
+    "lint-staged": "^15.4.3"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
-      "prettier --write"
-    ],
-    "*.{json,md,yaml,yml}": [
-      "prettier --write"
+    "*.{ts,tsx,js,jsx,json,jsonc}": [
+      "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
     ]
   }
 }

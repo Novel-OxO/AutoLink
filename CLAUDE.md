@@ -15,7 +15,6 @@ AutoLink는 AI 기반 링크/지식 관리 플랫폼이다. Bun 워크스페이�
 | `@autolink/app`           | `packages/app`           | React Native Expo 모바일 앱        |
 | `@autolink/shared`        | `packages/shared`        | Zod 스키마, 타입, 상수 (tsup 빌드) |
 | `@autolink/tsconfig`      | `packages/tsconfig`      | 공유 TypeScript 설정               |
-| `@autolink/eslint-config` | `packages/eslint-config` | 공유 ESLint 설정                   |
 
 ## Commands
 
@@ -28,9 +27,10 @@ bun dev:app            # Expo만
 
 # 빌드/린트/테스트
 bun run build          # 전체 빌드
-bun run lint           # 전체 린트
+bun run lint           # 전체 린트 (Biome)
+bun run lint:fix       # 린트 자동 수정
 bun run test           # 전체 테스트
-bun run format         # Prettier 포맷
+bun run format         # Biome 포맷
 bun run format:check   # 포맷 검사만
 
 # 단일 패키지 실행
@@ -62,13 +62,13 @@ docker compose up -d    # PostgreSQL(15432) + Redis(16379)
 Turborepo 없이 `package.json` 스크립트 체이닝으로 빌드 순서를 보장한다:
 
 - `build:shared` → `build:consumers` 순차 실행으로 shared 패키지가 먼저 빌드
-- `lint`/`test`는 `build:shared` 후 `--filter '*'`로 전체 병렬 실행
+- `lint`는 `biome check .`로 루트에서 실행 (빌드 불필요). `test`는 `build:shared` 후 `--filter '*'`로 전체 병렬 실행
 - `dev:all`은 `&` + `wait`로 4개 패키지 동시 실행
 
 ## Conventions
 
 - **커밋**: Conventional Commits 필수 (commitlint 훅). 허용 스코프: `server`, `web`, `app`, `shared`, `config`, `docs`, `deps`, `ci`
-- **포맷**: Prettier (세미콜론, 싱글쿼트, trailing comma, 100자). pre-commit 훅으로 lint-staged 자동 실행
+- **린트/포맷**: Biome (세미콜론, 싱글쿼트, trailing comma, 100자). pre-commit 훅으로 lint-staged → `biome check --write` 자동 실행
 - **경로 별칭**: 모든 패키지에서 `@/*` → `src/*`
 - **테스트**: Jest + ts-jest. 파일명 `*.spec.ts`. rootDir은 `src/`
 - **TypeScript**: strict 모드, ES2022 타겟
