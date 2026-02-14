@@ -1,18 +1,18 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { logger } from 'hono/logger';
 import { requestId } from 'hono/request-id';
 import { secureHeaders } from 'hono/secure-headers';
 
-import { env } from './lib/env';
-import { errorHandler } from './middleware/error-handler';
-import type { AppEnv } from './types/context';
+import { env } from './shared/lib/env';
+import { errorHandler } from './shared/middleware/error-handler';
+import { requestLogger } from './shared/middleware/request-logger';
+import type { AppEnv } from './shared/types/context';
 
 export function createApp() {
   const app = new Hono<AppEnv>();
 
   app.use(requestId());
-  app.use(logger());
+  app.use(requestLogger);
   app.use(secureHeaders());
   app.use(
     cors({

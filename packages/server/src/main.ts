@@ -1,15 +1,17 @@
 import { createApp } from './app';
-import { env } from './lib/env';
-import { connectPrisma, disconnectPrisma } from './lib/prisma';
+import { env } from './shared/lib/env';
+import { logger } from './shared/lib/logger';
+import { connectPrisma, disconnectPrisma } from './shared/lib/prisma';
 
 async function main() {
   await connectPrisma();
   const app = createApp();
 
   Bun.serve({ fetch: app.fetch, port: env.SERVER_PORT });
-  console.log(`Server is running on http://localhost:${env.SERVER_PORT}`);
+  logger.info(`Server is running on http://localhost:${env.SERVER_PORT}`);
 
   const shutdown = async () => {
+    logger.info('Shutting down gracefully...');
     await disconnectPrisma();
     process.exit(0);
   };
