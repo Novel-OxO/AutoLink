@@ -44,7 +44,6 @@
       "@prisma/engines",
       "prisma",
       "esbuild",
-      "@nestjs/core",
       "sharp",
       "unrs-resolver",
       "msgpackr-extract"

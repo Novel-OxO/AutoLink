@@ -1,19 +1,22 @@
-import { NestFactory } from '@nestjs/core';
-import { ConfigService } from '@nestjs/config';
+import { serve } from '@hono/node-server';
 
-import { AppModule } from './app.module';
+import { createApp } from './app';
+import { env } from './lib/env';
+import { connectPrisma, disconnectPrisma } from './lib/prisma';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
-  const port = configService.get<number>('SERVER_PORT', 3001);
+async function main() {
+  await connectPrisma();
+  const app = createApp();
 
-  app.enableCors({
-    origin: [`http://localhost:${configService.get<number>('WEB_PORT', 3000)}`],
-    credentials: true,
-  });
+  serve({ fetch: app.fetch, port: env.SERVER_PORT });
+  console.log(`Server is running on http://localhost:${env.SERVER_PORT}`);
 
-  await app.listen(port);
-  console.log(`Server is running on http://localhost:${port}`);
+  const shutdown = async () => {
+    await disconnectPrisma();
+    process.exit(0);
+  };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 }
-bootstrap();
+
+main();

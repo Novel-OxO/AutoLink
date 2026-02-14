@@ -1,5 +1,5 @@
 {
-  "extends": "@autolink/tsconfig/nestjs.json",
+  "extends": "@autolink/tsconfig/hono.json",
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",

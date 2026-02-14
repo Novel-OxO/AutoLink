@@ -4,6 +4,7 @@
   "private": true,
   "files": [
     "base.json",
+    "hono.json",
     "nestjs.json",
     "nextjs.json",
     "react-native.json"

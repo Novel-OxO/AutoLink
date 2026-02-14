@@ -4,6 +4,7 @@
   "private": true,
   "files": [
     "base.js",
+    "hono.js",
     "nestjs.js",
     "nextjs.js"
   ],
