@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "db:generate": "prisma generate",
-    "dev": "bun --env-file=../../.env --watch src/main.ts",
-    "start": "bun --env-file=../../.env src/main.ts",
-    "start:prod": "bun --env-file=../../.env src/main.ts",
+    "dev": "bun --env-file=../../.env.dev --watch src/main.ts",
+    "start": "bun --env-file=../../.env.dev src/main.ts",
+    "start:prod": "bun --env-file=../../.env.prod src/main.ts",
     "lint": "biome check src",
     "test": "jest",
     "test:watch": "jest --watch",
