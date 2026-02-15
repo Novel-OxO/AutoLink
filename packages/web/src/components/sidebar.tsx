@@ -1,24 +1,30 @@
-'use client';
+"use client";
 
-import { Building2, Link, LogIn, LogOut, Search, User } from 'lucide-react';
-import NextLink from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Separator } from '@/components/ui/separator';
-import { LoginModal, useAuth } from '@/features/auth';
-import { WorkspaceSwitcher } from '@/features/workspace';
-import { cn } from '@/lib/utils';
+import { Building2, Link, LogIn, LogOut, Search, User } from "lucide-react";
+import NextLink from "next/link";
+import { usePathname } from "next/navigation";
+import { Separator } from "@/components/ui/separator";
+import { LoginModal, useAuth } from "@/features/auth";
+import { WorkspaceSwitcher } from "@/features/workspace";
+import { cn } from "@/lib/utils";
 
-const navItems = [{ href: '/', icon: Search, label: '태그 검색' }];
+const navItems = [{ href: "/", icon: Search, label: "태그 검색" }];
 
 const menuItems = [
-  { href: '/workspace', icon: Building2, label: '워크스페이스' },
-  { href: '/profile', icon: User, label: '내 정보' },
+  { href: "/workspace", icon: Building2, label: "워크스페이스" },
+  { href: "/profile", icon: User, label: "내 정보" },
 ];
 
 export function Sidebar(): React.JSX.Element {
   const pathname = usePathname();
-  const { isLoggedIn, isLoading, isLoginModalOpen, openLoginModal, closeLoginModal, logout } =
-    useAuth();
+  const {
+    isLoggedIn,
+    isLoading,
+    isLoginModalOpen,
+    openLoginModal,
+    closeLoginModal,
+    logout,
+  } = useAuth();
 
   return (
     <aside className="flex h-full w-full flex-col bg-neutral-95 text-neutral-10">
@@ -38,10 +44,10 @@ export function Sidebar(): React.JSX.Element {
               <NextLink
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   pathname === item.href
-                    ? 'bg-neutral-75 text-white'
-                    : 'text-neutral-30 hover:bg-neutral-80 hover:text-neutral-10',
+                    ? "bg-neutral-75 text-white"
+                    : "text-neutral-30 hover:bg-neutral-80 hover:text-neutral-10",
                 )}
               >
                 <item.icon className="size-5" />
@@ -59,10 +65,10 @@ export function Sidebar(): React.JSX.Element {
               <NextLink
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   pathname === item.href
-                    ? 'bg-neutral-75 text-white'
-                    : 'text-neutral-30 hover:bg-neutral-80 hover:text-neutral-10',
+                    ? "bg-neutral-75 text-white"
+                    : "text-neutral-30 hover:bg-neutral-80 hover:text-neutral-10",
                 )}
               >
                 <item.icon className="size-5" />
