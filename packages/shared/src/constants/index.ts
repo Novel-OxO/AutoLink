@@ -7,6 +7,7 @@ export const CRAWL_STATUS = ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'] as 
 export const OAUTH_PROVIDERS = ['GOOGLE', 'APPLE'] as const;
 
 export const WORKSPACE_ROLES = ['ADMIN', 'MEMBER'] as const;
+export const WORKSPACE_ID_HEADER_NAME = 'AutoLink-Workspace-Id';
 
 export const INVITE_STATUS = ['PENDING', 'ACCEPTED', 'EXPIRED'] as const;
 

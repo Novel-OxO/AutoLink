@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { OAuthProviderSchema } from './common.schema';
+import { OAuthProviderSchema, WorkspaceRoleSchema } from './common.schema';
 
 export const OAuthCallbackQuerySchema = z.object({
   code: z.string(),
@@ -20,6 +20,14 @@ export const UserResponseSchema = z.object({
       connectedAt: z.string().datetime(),
     }),
   ),
+  workspaces: z.array(
+    z.object({
+      id: z.number(),
+      name: z.string(),
+      role: WorkspaceRoleSchema,
+    }),
+  ),
+  defaultWorkspaceId: z.number().nullable(),
   createdAt: z.string().datetime(),
 });
 export type UserResponse = z.infer<typeof UserResponseSchema>;
