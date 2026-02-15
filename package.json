@@ -26,6 +26,9 @@
     "lint:fix": "biome check --write .",
     "test": "bun run build:shared && bun run --filter '*' test",
     "test:server": "bun run build:shared && bun run --filter '@autolink/server' test",
+    "test:e2e": "cd packages/web && bun test:e2e",
+    "test:e2e:ui": "cd packages/web && bun test:e2e:ui",
+    "test:e2e:debug": "cd packages/web && bun test:e2e:debug",
     "clean": "bun run --filter '*' clean && rm -rf node_modules",
     "db:generate": "bun run --filter '@autolink/server' db:generate",
     "db:migrate": "cd packages/server && bunx prisma migrate dev && cd ../.. && bun run db:generate",
@@ -41,6 +44,7 @@
     "@biomejs/biome": "^2.3.0",
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
+    "@types/jsdom": "^27.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3"
   },

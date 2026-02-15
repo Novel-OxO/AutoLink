@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check src",
-    "clean": "rm -rf .next"
+    "clean": "rm -rf .next",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@autolink/shared": "workspace:*",
@@ -26,13 +30,21 @@
   },
   "devDependencies": {
     "@autolink/tsconfig": "workspace:*",
-    "@tailwindcss/postcss": "^4.0.9",
+    "@tailwindcss/postcss": "4.0.9",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^14.2.1",
+    "@testing-library/user-event": "^14.5.2",
     "@types/node": "^22.13.4",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-v8": "^1.3.1",
+    "@vitest/ui": "^1.3.1",
+    "jsdom": "^24.0.0",
     "postcss": "^8.5.2",
     "tailwindcss": "^4.0.9",
     "tw-animate-css": "^1.4.0",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^1.3.1"
   }
 }
