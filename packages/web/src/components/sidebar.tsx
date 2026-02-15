@@ -86,7 +86,7 @@ export function Sidebar(): React.JSX.Element {
             <button
               type="button"
               onClick={logout}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-30 transition-colors hover:bg-neutral-80 hover:text-neutral-10"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-30 transition-colors hover:bg-neutral-80 hover:text-neutral-10 cursor-pointer"
             >
               <LogOut className="size-5" />
               로그아웃
@@ -95,7 +95,7 @@ export function Sidebar(): React.JSX.Element {
             <button
               type="button"
               onClick={openLoginModal}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-30 transition-colors hover:bg-neutral-80 hover:text-neutral-10"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-30 transition-colors hover:bg-neutral-80 hover:text-neutral-10 cursor-pointer"
             >
               <LogIn className="size-5" />
               로그인
