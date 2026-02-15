@@ -2,9 +2,8 @@
 
 import { Bell, Briefcase, Link, LogIn, LogOut, Search, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { LoginModal } from '@/components/auth/login-modal';
 import { Separator } from '@/components/ui/separator';
-import { useAuth } from '@/hooks/useAuth';
+import { LoginModal, useAuth } from '@/features/auth';
 import { cn } from '@/lib/utils';
 
 const navItems = [

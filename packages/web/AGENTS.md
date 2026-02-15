@@ -14,7 +14,7 @@ This file provides guidance to AI agents when working with the web package.
 
 - **Framework**: Next.js 15 App Router
 - **Styling**: Tailwind CSS v4
-- **State Management**: 
+- **State Management**:
   - Zustand (클라이언트 상태)
   - TanStack Query (서버 상태)
 - **Type Safety**: TypeScript strict 모드
@@ -26,12 +26,11 @@ This file provides guidance to AI agents when working with the web package.
 packages/web/
 ├── src/
 │   ├── app/             # App Router 페이지 및 레이아웃
-│   ├── components/      # React 컴포넌트
-│   │   ├── ui/         # 기본 UI 컴포넌트
-│   │   └── auth/       # 인증 관련 컴포넌트
-│   ├── hooks/           # 커스텀 React 훅
+│   ├── features/        # 기능 단위 모듈
+│   │   └── auth/       # 인증 기능 (components/hooks/stores/index)
+│   ├── components/      # 공용 React 컴포넌트
+│   │   └── ui/         # 기본 UI 컴포넌트
 │   ├── lib/            # 유틸리티 함수
-│   ├── stores/         # Zustand 스토어
 │   └── types/          # 웹 전용 타입 정의
 ├── public/             # 정적 에셋
 └── package.json
@@ -40,17 +39,27 @@ packages/web/
 ## Key Features
 
 ### Authentication System
+
+- **Feature Module**: `src/features/auth`
 - **Hooks**: `useAuth`, `useAuthQuery`
 - **Components**: `LoginModal`
-- **State**: `authStore` (Zustand)
+- **State**: `auth.store` (Zustand)
 - **API**: `/auth` 엔드포인트 연동
 
 ### State Management
-- **Client State**: Zustand 스토어 (`stores/`)
-- **Server State**: TanStack Query (`hooks/`)
+
+- **Client State**: Zustand 스토어 (feature 내부)
+- **Server State**: TanStack Query (feature 내부)
 - **Form State**: React Hook Form + Zod
 
+### Feature Organization
+
+- 기능 전용 로직은 `src/features/{feature}` 아래에 배치
+- feature 내부에서 `components`, `hooks`, `stores`, `index.ts`로 구성
+- 외부 사용은 가능하면 `@/features/{feature}` 배럴 export를 우선 사용
+
 ### Styling
+
 - **CSS Framework**: Tailwind CSS v4
 - **Theme**: 커스텀 디자인 시스템 (neutral, mint, red 팔레트)
 - **Components**: shadcn/ui 스타일 시스템
@@ -74,22 +83,26 @@ bun run clean:web
 ## Conventions
 
 ### Component Structure
+
 - **File Naming**: PascalCase (예: `LoginModal.tsx`)
 - **Export**: Named export 기본
 - **Types**: 컴포넌트 내부 타입은 같은 파일에 정의
 - **Props**: 인터페이스로 명확하게 정의
 
 ### State Management
+
 - **Zustand**: 클라이언트 상태 (인증, UI 상태 등)
 - **TanStack Query**: 서버 상태 (API 호출, 캐싱)
 - **Form**: React Hook Form + Zod 스키마
 
 ### Styling
+
 - **Tailwind**: 유틸리티 클래스 우선
 - **Components**: 재사용 가능한 UI 컴포넌트
 - **Theme**: 디자인 토큰 일관성 유지
 
 ### API Integration
+
 - **Client**: 커스텀 API 클라이언트 (`lib/api.ts`)
 - **Type Safety**: 서버 `AppType`으로 타입 추론
 - **Error Handling**: 일관된 에러 처리
@@ -98,27 +111,31 @@ bun run clean:web
 
 - `@/*` → `src/*`
 - `@/components/*` → `src/components/*`
-- `@/hooks/*` → `src/hooks/*`
+- `@/features/*` → `src/features/*`
 - `@/lib/*` → `src/lib/*`
 
 ## Dependencies
 
 ### Core
+
 - `next`: Next.js 15
 - `react`: React 19
 - `react-dom`: React DOM
 
 ### Styling
+
 - `tailwindcss`: v4
 - `@tailwindcss/postcss`: PostCSS 플러그인
 - `lucide-react`: 아이콘 라이브러리
 
 ### State & Data
+
 - `zustand`: 클라이언트 상태 관리
 - `@tanstack/react-query`: 서버 상태 관리
 - `zod`: 스키마 검증
 
 ### UI Components
+
 - `class-variance-authority`: 컴포넌트 변형
 - `clsx`: 조건부 클래스
 - `tailwind-merge`: 클래스 병합

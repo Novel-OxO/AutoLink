@@ -12,7 +12,10 @@ const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
 // Set global DOM objects
 global.window = dom.window as unknown as Window & typeof globalThis;
 global.document = dom.window.document;
-global.navigator = dom.window.navigator;
+Object.defineProperty(globalThis, 'navigator', {
+  value: dom.window.navigator,
+  configurable: true,
+});
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
@@ -39,19 +42,3 @@ vi.mock('next/image', () => ({
   __esModule: true,
   default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => React.createElement('img', props),
 }));
-
-// Mock window.location
-Object.defineProperty(window, 'location', {
-  value: {
-    href: 'http://localhost:3000',
-    origin: 'http://localhost:3000',
-    protocol: 'http:',
-    host: 'localhost:3000',
-    hostname: 'localhost',
-    port: '3000',
-    pathname: '/',
-    search: '',
-    hash: '',
-  },
-  writable: true,
-});

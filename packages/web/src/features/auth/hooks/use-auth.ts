@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { env } from '@/lib/env';
-import { useAuthStore } from '@/stores/authStore';
-import { useAuthQuery, useLogoutMutation } from './useAuthQuery';
+import { useAuthStore } from '../stores/auth.store';
+import { useAuthQuery, useLogoutMutation } from './use-auth-query';
 
 export function useAuth() {
   const { data: user, isLoading, error, refetch } = useAuthQuery();

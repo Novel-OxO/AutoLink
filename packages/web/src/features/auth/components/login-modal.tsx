@@ -3,7 +3,7 @@
 import { X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '../hooks/use-auth';
 
 interface LoginModalProps {
   isOpen: boolean;

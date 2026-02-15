@@ -10,7 +10,7 @@ vi.mock('@/lib/env', () => ({
 const mockUseAuthQuery = vi.fn();
 const mockUseLogoutMutation = vi.fn();
 
-vi.mock('@/hooks/useAuthQuery', () => ({
+vi.mock('@/features/auth/hooks/use-auth-query', () => ({
   useAuthQuery: () => mockUseAuthQuery(),
   useLogoutMutation: () => mockUseLogoutMutation(),
 }));
@@ -22,7 +22,7 @@ const mockAuthStore = {
   closeLoginModal: vi.fn(),
 };
 
-vi.mock('@/stores/authStore', () => ({
+vi.mock('@/features/auth/stores/auth.store', () => ({
   useAuthStore: () => mockAuthStore,
 }));
 
