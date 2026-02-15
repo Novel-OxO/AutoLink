@@ -1,7 +1,7 @@
 'use client';
 
 import type { WorkspaceRole } from '@autolink/shared/types';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -38,7 +38,7 @@ export default function WorkspacePage(): React.JSX.Element {
   const { data: workspaces = [], isLoading: isWorkspaceLoading } =
     useWorkspaceListQuery(isAuthenticated);
 
-  const selectedWorkspaceId = useMemo(() => {
+  const selectedWorkspaceId = (() => {
     if (activeWorkspaceId !== null) {
       return activeWorkspaceId;
     }
@@ -48,12 +48,10 @@ export default function WorkspacePage(): React.JSX.Element {
     }
 
     return workspaces[0]?.id ?? null;
-  }, [activeWorkspaceId, defaultWorkspaceId, workspaces]);
+  })();
 
-  const selectedWorkspace = useMemo(
-    () => workspaces.find((workspace) => workspace.id === selectedWorkspaceId) ?? null,
-    [selectedWorkspaceId, workspaces],
-  );
+  const selectedWorkspace =
+    workspaces.find((workspace) => workspace.id === selectedWorkspaceId) ?? null;
 
   const isAdmin = selectedWorkspace?.role === 'ADMIN';
 
