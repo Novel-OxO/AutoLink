@@ -11,7 +11,7 @@ import type {
   WorkspaceRole,
 } from '@autolink/shared/types';
 
-import { useWorkspaceStore } from '@/features/workspace/stores/workspace.store';
+import { useWorkspaceStore } from '@/features/workspace';
 
 import { WORKSPACE_ID_HEADER_NAME } from './constants';
 import { env } from './env';
@@ -25,6 +25,7 @@ export interface ApiResponse<T = unknown> {
 interface UserWorkspace {
   id: number;
   name: string;
+<<<<<<< HEAD
   role: WorkspaceRole;
 }
 
@@ -37,7 +38,6 @@ type WorkspaceListResponse = { data: WorkspaceResponse[] };
 type WorkspaceMembersResponse = { data: WorkspaceMemberResponse[] };
 type WorkspaceMemberRoleResponse = { userId: number; role: WorkspaceRole };
 type MessageResponse = { message: string };
-
 export type User = UserResponse & {
   workspaces: UserWorkspace[];
   defaultWorkspaceId: number | null;

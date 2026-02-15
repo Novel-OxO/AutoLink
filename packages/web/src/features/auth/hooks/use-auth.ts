@@ -1,10 +1,10 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from "react";
 
-import { useWorkspaceStore } from '@/features/workspace/stores/workspace.store';
+import { useWorkspaceStore } from "@/features/workspace";
 
-import { env } from '@/lib/env';
-import { useAuthStore } from '../stores/auth.store';
-import { useAuthQuery, useLogoutMutation } from './use-auth-query';
+import { env } from "@/lib/env";
+import { useAuthStore } from "../stores/auth.store";
+import { useAuthQuery, useLogoutMutation } from "./use-auth-query";
 
 export function useAuth() {
   const { data: user, isLoading, error, refetch } = useAuthQuery();
@@ -38,7 +38,7 @@ export function useAuth() {
       await logoutMutation.mutateAsync();
       clearWorkspaceContext();
     } catch (error) {
-      console.error('로그아웃 중 오류 발생:', error);
+      console.error("로그아웃 중 오류 발생:", error);
     }
   }, [clearWorkspaceContext, logoutMutation]);
 
