@@ -9,12 +9,12 @@ import type {
   WorkspaceMemberResponse,
   WorkspaceResponse,
   WorkspaceRole,
-} from '@autolink/shared/types';
+} from "@autolink/shared/types";
 
-import { useWorkspaceStore } from '@/features/workspace';
+import { useWorkspaceStore } from "@/features/workspace/stores/workspace.store";
 
-import { WORKSPACE_ID_HEADER_NAME } from './constants';
-import { env } from './env';
+import { WORKSPACE_ID_HEADER_NAME } from "./constants";
+import { env } from "./env";
 
 export interface ApiResponse<T = unknown> {
   data?: T;
@@ -25,7 +25,6 @@ export interface ApiResponse<T = unknown> {
 interface UserWorkspace {
   id: number;
   name: string;
-<<<<<<< HEAD
   role: WorkspaceRole;
 }
 
@@ -44,7 +43,8 @@ export type User = UserResponse & {
 };
 
 function getWorkspaceRequestHeader(): Record<string, string> {
-  const { activeWorkspaceId, defaultWorkspaceId } = useWorkspaceStore.getState();
+  const { activeWorkspaceId, defaultWorkspaceId } =
+    useWorkspaceStore.getState();
   const workspaceId = activeWorkspaceId ?? defaultWorkspaceId;
 
   if (workspaceId === null) {
@@ -61,16 +61,19 @@ class ApiClient {
     this.baseUrl = env.apiUrl;
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {},
+  ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
     const config: RequestInit = {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...getWorkspaceRequestHeader(),
         ...options.headers,
       },
-      credentials: 'include', // 쿠키 자동 포함
+      credentials: "include", // 쿠키 자동 포함
       ...options,
     };
 
@@ -79,7 +82,7 @@ class ApiClient {
     if (!response.ok) {
       if (response.status === 401) {
         // 인증 실패 시 처리
-        throw new Error('UNAUTHORIZED');
+        throw new Error("UNAUTHORIZED");
       }
 
       let errorPayload: ApiErrorPayload | null = null;
@@ -106,53 +109,56 @@ class ApiClient {
 
   // GET 요청
   async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET' });
+    return this.request<T>(endpoint, { method: "GET" });
   }
 
   // POST 요청
   async post<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
-      method: 'POST',
+      method: "POST",
       body: data ? JSON.stringify(data) : undefined,
     });
   }
 
   // DELETE 요청
   async delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
+    return this.request<T>(endpoint, { method: "DELETE" });
   }
 
   // PATCH 요청
   async patch<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
-      method: 'PATCH',
+      method: "PATCH",
       body: data ? JSON.stringify(data) : undefined,
     });
   }
 
   // 인증 관련 API
   async getAuthUser(): Promise<User> {
-    return this.get<User>('/auth/me');
+    return this.get<User>("/auth/me");
   }
 
   async logout(): Promise<{ message: string }> {
-    return this.post<{ message: string }>('/auth/logout');
+    return this.post<{ message: string }>("/auth/logout");
   }
 
   async deleteAccount(): Promise<{ message: string }> {
-    return this.delete<{ message: string }>('/auth/me');
+    return this.delete<{ message: string }>("/auth/me");
   }
 
   // 워크스페이스 관련 API
   async listWorkspaces(): Promise<WorkspaceListResponse> {
-    return this.get<WorkspaceListResponse>('/workspaces');
+    return this.get<WorkspaceListResponse>("/workspaces");
   }
 
   async createWorkspace(data: CreateWorkspace): Promise<WorkspaceResponse> {
-    return this.post<WorkspaceResponse>('/workspaces', data);
+    return this.post<WorkspaceResponse>("/workspaces", data);
   }
 
-  async updateWorkspace(workspaceId: number, data: UpdateWorkspace): Promise<WorkspaceResponse> {
+  async updateWorkspace(
+    workspaceId: number,
+    data: UpdateWorkspace,
+  ): Promise<WorkspaceResponse> {
     return this.patch<WorkspaceResponse>(`/workspaces/${workspaceId}`, data);
   }
 
@@ -160,8 +166,12 @@ class ApiClient {
     return this.delete<MessageResponse>(`/workspaces/${workspaceId}`);
   }
 
-  async listWorkspaceMembers(workspaceId: number): Promise<WorkspaceMembersResponse> {
-    return this.get<WorkspaceMembersResponse>(`/workspaces/${workspaceId}/members`);
+  async listWorkspaceMembers(
+    workspaceId: number,
+  ): Promise<WorkspaceMembersResponse> {
+    return this.get<WorkspaceMembersResponse>(
+      `/workspaces/${workspaceId}/members`,
+    );
   }
 
   async updateWorkspaceMemberRole(
@@ -175,15 +185,25 @@ class ApiClient {
     );
   }
 
-  async removeWorkspaceMember(workspaceId: number, userId: number): Promise<MessageResponse> {
-    return this.delete<MessageResponse>(`/workspaces/${workspaceId}/members/${userId}`);
+  async removeWorkspaceMember(
+    workspaceId: number,
+    userId: number,
+  ): Promise<MessageResponse> {
+    return this.delete<MessageResponse>(
+      `/workspaces/${workspaceId}/members/${userId}`,
+    );
   }
 
-  async createWorkspaceInvite(workspaceId: number, data: CreateInvite): Promise<InviteResponse> {
+  async createWorkspaceInvite(
+    workspaceId: number,
+    data: CreateInvite,
+  ): Promise<InviteResponse> {
     return this.post<InviteResponse>(`/workspaces/${workspaceId}/invite`, data);
   }
 
-  async acceptWorkspaceInvite(inviteToken: string): Promise<AcceptInviteResponse> {
+  async acceptWorkspaceInvite(
+    inviteToken: string,
+  ): Promise<AcceptInviteResponse> {
     return this.post<AcceptInviteResponse>(`/invites/${inviteToken}/accept`);
   }
 }

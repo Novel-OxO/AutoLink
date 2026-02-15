@@ -2,10 +2,28 @@
 
 import { User } from 'lucide-react';
 import Image from 'next/image';
-import { useAuth, withAuth } from '@/features/auth';
+import { useAuth } from '@/features/auth';
 
-function ProfilePageContent(): React.JSX.Element {
-  const { user, error } = useAuth();
+export default function ProfilePage(): React.JSX.Element {
+  const { user, isLoading, error, isAuthenticated, openLoginModal } = useAuth();
+
+  // 로딩 상태
+  if (isLoading) {
+    return (
+      <div className="p-8">
+        <div className="animate-pulse">
+          <div className="mb-6 h-8 w-32 rounded bg-muted" />
+          <div className="flex items-center gap-4">
+            <div className="size-20 rounded-full bg-muted" />
+            <div className="flex-1 space-y-2">
+              <div className="h-6 w-48 rounded bg-muted" />
+              <div className="h-4 w-64 rounded bg-muted" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // 에러 상태
   if (error) {
@@ -19,6 +37,27 @@ function ProfilePageContent(): React.JSX.Element {
     );
   }
 
+  // 미인증 상태: 로그인 유도 UI
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <User className="size-16 text-muted-foreground" />
+          <div>
+            <h2 className="text-xl font-semibold">로그인이 필요합니다</h2>
+            <p className="mt-1 text-muted-foreground">내 정보를 보려면 먼저 로그인해주세요</p>
+          </div>
+          <button
+            type="button"
+            onClick={openLoginModal}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 cursor-pointer"
+          >
+            로그인하기
+          </button>
+        </div>
+      </div>
+    );
+  }
   // 정상 상태: 사용자 정보 표시
   return (
     <div className="p-8">
@@ -61,7 +100,7 @@ function ProfilePageContent(): React.JSX.Element {
           <h3 className="mb-3 font-semibold">연동된 계정</h3>
           {user?.oauths && user.oauths.length > 0 ? (
             <div className="space-y-2">
-              {user.oauths.map((oauth: { provider: string; connectedAt: string }) => (
+              {user.oauths.map((oauth) => (
                 <div
                   key={`${oauth.provider}-${oauth.connectedAt}`}
                   className="flex items-center justify-between rounded-md border p-3"
@@ -97,6 +136,4 @@ function ProfilePageContent(): React.JSX.Element {
     </div>
   );
 }
-
-// HOC로 감싸서 export
-export default withAuth(ProfilePageContent);
+}

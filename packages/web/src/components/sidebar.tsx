@@ -1,6 +1,14 @@
 "use client";
 
-import { Building2, Link, LogIn, LogOut, Search, User } from "lucide-react";
+import {
+  Bell,
+  Building2,
+  Link,
+  LogIn,
+  LogOut,
+  Search,
+  User,
+} from "lucide-react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
