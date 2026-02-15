@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, Briefcase, Link, LogIn, LogOut, Search, User } from 'lucide-react';
+import { Bell, Link, LogIn, LogOut, Search, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
 import { LoginModal, useAuth } from '@/features/auth';
@@ -11,10 +11,7 @@ const navItems = [
   { href: '/notifications', icon: Bell, label: '알림' },
 ];
 
-const menuItems = [
-  { href: '/profile', icon: User, label: '내 정보' },
-  { href: '/my-posts', icon: Briefcase, label: '내 공고' },
-];
+const menuItems = [{ href: '/profile', icon: User, label: '내 정보' }];
 
 export function Sidebar(): React.JSX.Element {
   const pathname = usePathname();
