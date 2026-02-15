@@ -1,5 +1,4 @@
 export { InviteAcceptPage } from './components/invite-accept-page';
-export { WorkspaceManagementPage } from './components/workspace-management-page';
 export { WorkspaceSwitcher } from './components/workspace-switcher';
 export {
   useAcceptWorkspaceInviteMutation,
