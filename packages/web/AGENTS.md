@@ -153,9 +153,20 @@ bun run clean:web
 - **Pre-commit**: 자동 포맷팅 및 린팅
 - **Import Order**: 일관된 import 순서
 
-## Performance
+### Performance
 
 - **Bundle Optimization**: Next.js 자동 최적화
 - **Image Optimization**: next/image 사용
 - **Code Splitting**: 동적 import 활용
 - **Caching**: TanStack Query 캐싱 전략
+
+## Development Guidelines
+
+### Performance Optimization
+
+**사용자가 명시적으로 요청하지 않은 한, 불필요한 최적화 코드를 추가하지 마세요.**
+
+- **useMemo/useCallback**: 성능 문제가 실제로 발생했거나 사용자가 명시적으로 요청한 경우에만 사용
+- **단순 계산**: 기본적인 객체 찾기, 간단한 조건문 등에는 최적화 적용하지 않음
+- **가독성 우선**: 불필요한 최적화로 코드 가독성을 해치지 않음
+- **실제 측정 기반**: 성능 최적화는 실제 성능 측정 데이터를 기반으로 결정
