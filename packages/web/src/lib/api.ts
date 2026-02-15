@@ -1,3 +1,8 @@
+import type { UserResponse } from '@autolink/shared';
+
+import { useWorkspaceStore } from '@/features/workspace';
+
+import { WORKSPACE_ID_HEADER_NAME } from './constants';
 import { env } from './env';
 
 export interface ApiResponse<T = unknown> {
@@ -6,16 +11,26 @@ export interface ApiResponse<T = unknown> {
   message?: string;
 }
 
-export interface User {
-  id: string;
-  email: string;
-  createdAt: string;
-  updatedAt: string;
-  oAuths?: Array<{
-    id: string;
-    provider: string;
-    providerId: string;
-  }>;
+interface UserWorkspace {
+  id: number;
+  name: string;
+  role: 'ADMIN' | 'MEMBER';
+}
+
+export type User = UserResponse & {
+  workspaces: UserWorkspace[];
+  defaultWorkspaceId: number | null;
+};
+
+function getWorkspaceRequestHeader(): Record<string, string> {
+  const { activeWorkspaceId, defaultWorkspaceId } = useWorkspaceStore.getState();
+  const workspaceId = activeWorkspaceId ?? defaultWorkspaceId;
+
+  if (workspaceId === null) {
+    return {};
+  }
+
+  return { [WORKSPACE_ID_HEADER_NAME]: String(workspaceId) };
 }
 
 class ApiClient {
@@ -31,6 +46,7 @@ class ApiClient {
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
+        ...getWorkspaceRequestHeader(),
         ...options.headers,
       },
       credentials: 'include', // 쿠키 자동 포함
