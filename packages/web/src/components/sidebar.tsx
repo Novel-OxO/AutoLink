@@ -1,16 +1,14 @@
 'use client';
 
-import { Bell, Building2, Link, LogIn, LogOut, Search, User } from 'lucide-react';
+import { Building2, Link, LogIn, LogOut, Search, User } from 'lucide-react';
+import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
 import { LoginModal, useAuth } from '@/features/auth';
 import { WorkspaceSwitcher } from '@/features/workspace';
 import { cn } from '@/lib/utils';
 
-const navItems = [
-  { href: '/', icon: Search, label: '태그 검색' },
-  { href: '/notifications', icon: Bell, label: '알림' },
-];
+const navItems = [{ href: '/', icon: Search, label: '태그 검색' }];
 
 const menuItems = [
   { href: '/workspace', icon: Building2, label: '워크스페이스' },
@@ -23,7 +21,7 @@ export function Sidebar(): React.JSX.Element {
     useAuth();
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 flex w-60 flex-col bg-neutral-95 text-neutral-10">
+    <aside className="flex h-full w-full flex-col bg-neutral-95 text-neutral-10">
       {/* Logo */}
       <div className="flex items-center gap-2 px-5 py-6">
         <Link className="size-7 text-mint-40" />
@@ -37,7 +35,7 @@ export function Sidebar(): React.JSX.Element {
         <ul className="space-y-1">
           {navItems.map((item) => (
             <li key={item.href}>
-              <a
+              <NextLink
                 href={item.href}
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
@@ -48,7 +46,7 @@ export function Sidebar(): React.JSX.Element {
               >
                 <item.icon className="size-5" />
                 {item.label}
-              </a>
+              </NextLink>
             </li>
           ))}
         </ul>
@@ -58,7 +56,7 @@ export function Sidebar(): React.JSX.Element {
         <ul className="space-y-1">
           {menuItems.map((item) => (
             <li key={item.href}>
-              <a
+              <NextLink
                 href={item.href}
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
@@ -69,7 +67,7 @@ export function Sidebar(): React.JSX.Element {
               >
                 <item.icon className="size-5" />
                 {item.label}
-              </a>
+              </NextLink>
             </li>
           ))}
         </ul>
