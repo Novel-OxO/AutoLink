@@ -6,6 +6,11 @@ import {
   WorkspaceHeaderInvalidException,
 } from '@/shared/errors/auth.error';
 
+import {
+  WorkspaceAccessDeniedException,
+  WorkspaceHeaderInvalidException,
+} from '@/shared/errors/auth.error';
+
 import * as repo from './auth.repository';
 
 // TODO 헤더 파싱은 공용 모듈로 추출
