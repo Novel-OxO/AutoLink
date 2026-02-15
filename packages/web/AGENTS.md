@@ -107,6 +107,12 @@ bun run clean:web
 - **Type Safety**: 서버 `AppType`으로 타입 추론
 - **Error Handling**: 일관된 에러 처리
 
+### Quote Rules
+
+- **TS/JS 문자열 및 import 경로**: 싱글쿼트(`'`) 사용
+- **JSX 속성값**: 더블쿼트(`"`) 사용 (Biome 기본)
+- **JSON**: 스펙상 더블쿼트만 사용
+
 ## Path Aliases
 
 - `@/*` → `src/*`

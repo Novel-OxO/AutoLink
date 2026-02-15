@@ -74,6 +74,7 @@ Turborepo 없이 `package.json` 스크립트 체이닝으로 빌드 순서를 �
 - **API 경로 규칙**: 서버 API 엔드포인트에는 `/api` 프리픽스를 사용하지 않습니다. 모든 API 경로는 루트에서 시작합니다 (예: `/auth/me`, `/health`).
 - **커밋**: Conventional Commits 필수 (commitlint 훅). subject는 소문자로 시작. 허용 스코프: `server`, `web`, `app`, `shared`, `config`, `docs`, `deps`, `ci`
 - **린트/포맷**: Biome (세미콜론, 싱글쿼트, trailing comma, 100자). pre-commit 훅으로 lint-staged → `biome check --write` 자동 실행
+- **쿼트 규칙**: TS/JS 문자열과 import 경로는 싱글쿼트(`'`)를 사용합니다. JSX 속성값은 더블쿼트(`"`)를 사용합니다(Biome 기본). JSON은 스펙상 더블쿼트만 사용합니다.
 - **경로 별칭**: 모든 패키지에서 `@/*` → `src/*`
 - **테스트**: Vitest. 파일명 `*.spec.ts`. 통합 테스트는 `test/` 디렉토리(src와 같은 레벨). `bun run test:server`로 서버 테스트 실행
 - **TypeScript**: strict 모드, ES2022 타겟
