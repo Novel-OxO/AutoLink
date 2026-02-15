@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 
-import { useWorkspaceStore } from '@/features/workspace';
+import { useWorkspaceStore } from '@/features/workspace/stores/workspace.store';
 
 import { env } from '@/lib/env';
 import { useAuthStore } from '../stores/auth.store';

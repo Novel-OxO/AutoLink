@@ -4,6 +4,7 @@ import { requestId } from 'hono/request-id';
 import { secureHeaders } from 'hono/secure-headers';
 
 import { authRoutes } from './features/identity-and-access/auth.routes';
+import { workspaceRoutes } from './features/workspace/workspace.routes';
 import { env } from './shared/lib/env';
 import { errorHandler } from './shared/middleware/error-handler';
 import { requestLogger } from './shared/middleware/request-logger';
@@ -26,6 +27,7 @@ export function createApp() {
   app.get('/health', (c) => c.json({ status: 'ok' }));
 
   app.route('/', authRoutes);
+  app.route('/', workspaceRoutes);
 
   return app;
 }

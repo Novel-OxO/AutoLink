@@ -34,7 +34,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps): React.JSX.Elem
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-sm p-1 text-gray-400 hover:text-gray-600"
+          className="absolute right-4 top-4 rounded-sm p-1 text-gray-400 hover:text-gray-600 cursor-pointer"
           aria-label="모달 닫기"
         >
           <X className="size-5" />
@@ -53,7 +53,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps): React.JSX.Elem
           onClick={login}
           disabled={isLoading}
           variant="outline"
-          className="flex w-full items-center justify-center gap-3 bg-white text-gray-700 hover:bg-gray-50 border-gray-300"
+          className="flex w-full items-center justify-center gap-3 bg-white text-gray-700 hover:bg-gray-50 border-gray-300 cursor-pointer"
         >
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
             <path

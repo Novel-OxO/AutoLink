@@ -1,9 +1,10 @@
 'use client';
 
-import { Bell, Link, LogIn, LogOut, Search, User } from 'lucide-react';
+import { Bell, Building2, Link, LogIn, LogOut, Search, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
 import { LoginModal, useAuth } from '@/features/auth';
+import { WorkspaceSwitcher } from '@/features/workspace';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -11,7 +12,10 @@ const navItems = [
   { href: '/notifications', icon: Bell, label: '알림' },
 ];
 
-const menuItems = [{ href: '/profile', icon: User, label: '내 정보' }];
+const menuItems = [
+  { href: '/workspace', icon: Building2, label: '워크스페이스' },
+  { href: '/profile', icon: User, label: '내 정보' },
+];
 
 export function Sidebar(): React.JSX.Element {
   const pathname = usePathname();
@@ -25,6 +29,8 @@ export function Sidebar(): React.JSX.Element {
         <Link className="size-7 text-mint-40" />
         <span className="text-lg font-bold text-white">AutoLink</span>
       </div>
+
+      <WorkspaceSwitcher enabled={!isLoading && isLoggedIn} />
 
       {/* Navigation */}
       <nav className="flex flex-1 flex-col px-3">
