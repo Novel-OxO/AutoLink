@@ -58,6 +58,7 @@ export default function ProfilePage(): React.JSX.Element {
       </div>
     );
   }
+
   // 정상 상태: 사용자 정보 표시
   return (
     <div className="p-8">
@@ -135,5 +136,4 @@ export default function ProfilePage(): React.JSX.Element {
       </div>
     </div>
   );
-}
 }

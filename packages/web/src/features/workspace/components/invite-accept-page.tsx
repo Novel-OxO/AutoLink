@@ -83,4 +83,10 @@ export function InviteAcceptPage({ inviteToken }: InviteAcceptPageProps): React.
     </div>
   );
 }
+<<<<<<< HEAD
 }
+=======
+
+// HOC로 감싸서 export
+export const InviteAcceptPage = withAuth(InviteAcceptPageContent);
+>>>>>>> 78cb017 (refactor(web): withAuth HOC로 인증 필요 페이지 리팩토링)
