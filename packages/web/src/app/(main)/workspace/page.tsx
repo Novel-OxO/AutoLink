@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { LoginModal, useAuth } from '@/features/auth';
+import { withAuth } from '@/features/auth';
 
 import {
   useCreateWorkspaceInviteMutation,
@@ -27,16 +27,12 @@ interface FeedbackState {
   message: string;
 }
 
-export default function WorkspacePage(): React.JSX.Element {
-  const { isAuthenticated, isLoading, openLoginModal, isLoginModalOpen, closeLoginModal } =
-    useAuth();
-
+function WorkspacePageContent(): React.JSX.Element {
   const activeWorkspaceId = useWorkspaceStore((state) => state.activeWorkspaceId);
   const defaultWorkspaceId = useWorkspaceStore((state) => state.defaultWorkspaceId);
   const setActiveWorkspaceId = useWorkspaceStore((state) => state.setActiveWorkspaceId);
 
-  const { data: workspaces = [], isLoading: isWorkspaceLoading } =
-    useWorkspaceListQuery(isAuthenticated);
+  const { data: workspaces = [], isLoading: isWorkspaceLoading } = useWorkspaceListQuery(true); // HOC에서 인증 보장됨
 
   const selectedWorkspaceId = (() => {
     if (activeWorkspaceId !== null) {
@@ -76,11 +72,8 @@ export default function WorkspacePage(): React.JSX.Element {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<WorkspaceRole>('MEMBER');
 
+  // 워크스페이스 관련 로직만 남김
   useEffect(() => {
-    if (!isAuthenticated) {
-      return;
-    }
-
     if (workspaces.length === 0) {
       if (activeWorkspaceId !== null) {
         setActiveWorkspaceId(null);
@@ -95,7 +88,7 @@ export default function WorkspacePage(): React.JSX.Element {
     if (!hasValidActiveWorkspace) {
       setActiveWorkspaceId(workspaces[0].id);
     }
-  }, [isAuthenticated, workspaces, activeWorkspaceId, selectedWorkspaceId, setActiveWorkspaceId]);
+  }, [workspaces, activeWorkspaceId, selectedWorkspaceId, setActiveWorkspaceId]);
 
   useEffect(() => {
     if (!selectedWorkspace) {
@@ -269,25 +262,6 @@ export default function WorkspacePage(): React.JSX.Element {
     } catch (error) {
       setErrorMessage(error, '초대 생성에 실패했습니다.');
     }
-  }
-
-  if (isLoading) {
-    return <div className="p-8 text-sm text-muted-foreground">사용자 정보를 불러오는 중...</div>;
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="p-8">
-        <h1 className="text-2xl font-semibold">워크스페이스</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          워크스페이스 관리 기능을 사용하려면 로그인이 필요합니다.
-        </p>
-        <Button onClick={openLoginModal} className="mt-4 cursor-pointer">
-          로그인하기
-        </Button>
-        <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />
-      </div>
-    );
   }
 
   if (isWorkspaceLoading) {
@@ -488,3 +462,6 @@ export default function WorkspacePage(): React.JSX.Element {
     </div>
   );
 }
+
+// HOC로 감싸서 export
+export default withAuth(WorkspacePageContent);

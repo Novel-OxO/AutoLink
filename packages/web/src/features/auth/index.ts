@@ -1,8 +1,5 @@
-export { LoginModal } from './components/login-modal';
-export { useAuth } from './hooks/use-auth';
-export {
-  useAuthQuery,
-  useDeleteAccountMutation,
-  useLogoutMutation,
-} from './hooks/use-auth-query';
-export { useAuthStore } from './stores/auth.store';
+export * from './components/login-modal';
+export * from './components/with-auth';
+export * from './hooks/use-auth';
+export * from './hooks/use-auth-query';
+export * from './stores/auth.store';
