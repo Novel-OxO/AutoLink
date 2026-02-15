@@ -1,29 +1,40 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
-import { Button } from '@/components/ui/button';
-import { LoginModal, useAuth } from '@/features/auth';
+import { Button } from "@/components/ui/button";
+import { LoginModal, useAuth } from "@/features/auth";
 
-import { useAcceptWorkspaceInviteMutation } from '../hooks/use-workspace-actions';
-import { getWorkspaceErrorMessage } from '../lib/workspace-error-message';
-import { useWorkspaceStore } from '../stores/workspace.store';
+import { useAcceptWorkspaceInviteMutation } from "../hooks/use-workspace-actions";
+import { getWorkspaceErrorMessage } from "../lib/workspace-error-message";
+import { useWorkspaceStore } from "../stores/workspace.store";
 
 interface InviteAcceptPageProps {
   inviteToken: string;
 }
 
-export function InviteAcceptPage({ inviteToken }: InviteAcceptPageProps): React.JSX.Element {
+export function InviteAcceptPage({
+  inviteToken,
+}: InviteAcceptPageProps): React.JSX.Element {
   const router = useRouter();
   const didAttemptRef = useRef(false);
 
-  const { isAuthenticated, isLoading, openLoginModal, isLoginModalOpen, closeLoginModal } =
-    useAuth();
-  const setActiveWorkspaceId = useWorkspaceStore((state) => state.setActiveWorkspaceId);
+  const {
+    isAuthenticated,
+    isLoading,
+    openLoginModal,
+    isLoginModalOpen,
+    closeLoginModal,
+  } = useAuth();
+  const setActiveWorkspaceId = useWorkspaceStore(
+    (state) => state.setActiveWorkspaceId,
+  );
 
   const acceptInviteMutation = useAcceptWorkspaceInviteMutation();
-  const [statusMessage, setStatusMessage] = useState<string>('초대 정보를 확인하고 있습니다...');
+  const [statusMessage, setStatusMessage] = useState<string>(
+    "초대 정보를 확인하고 있습니다...",
+  );
 
   useEffect(() => {
     if (!isAuthenticated || isLoading || didAttemptRef.current) {
@@ -36,16 +47,31 @@ export function InviteAcceptPage({ inviteToken }: InviteAcceptPageProps): React.
       try {
         const accepted = await acceptInviteMutation.mutateAsync(inviteToken);
         setActiveWorkspaceId(accepted.workspaceId);
-        setStatusMessage(`'${accepted.workspaceName}' 워크스페이스에 참여했습니다. 이동 중...`);
-        router.replace('/workspace');
+        setStatusMessage(
+          `'${accepted.workspaceName}' 워크스페이스에 참여했습니다. 이동 중...`,
+        );
+        router.replace("/workspace");
       } catch (error) {
-        setStatusMessage(getWorkspaceErrorMessage(error, '초대 수락에 실패했습니다.'));
+        setStatusMessage(
+          getWorkspaceErrorMessage(error, "초대 수락에 실패했습니다."),
+        );
       }
     })();
-  }, [acceptInviteMutation, inviteToken, isAuthenticated, isLoading, router, setActiveWorkspaceId]);
+  }, [
+    acceptInviteMutation,
+    inviteToken,
+    isAuthenticated,
+    isLoading,
+    router,
+    setActiveWorkspaceId,
+  ]);
 
   if (isLoading) {
-    return <div className="p-8 text-sm text-muted-foreground">로그인 상태를 확인하는 중...</div>;
+    return (
+      <div className="p-8 text-sm text-muted-foreground">
+        로그인 상태를 확인하는 중...
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
@@ -72,10 +98,17 @@ export function InviteAcceptPage({ inviteToken }: InviteAcceptPageProps): React.
         <p className="text-sm text-muted-foreground">{statusMessage}</p>
 
         <div className="flex justify-center gap-2">
-          <Button onClick={() => router.push('/workspace')} className="cursor-pointer">
+          <Button
+            onClick={() => router.push("/workspace")}
+            className="cursor-pointer"
+          >
             워크스페이스로 이동
           </Button>
-          <Button variant="outline" onClick={() => router.push('/')} className="cursor-pointer">
+          <Button
+            variant="outline"
+            onClick={() => router.push("/")}
+            className="cursor-pointer"
+          >
             홈으로 이동
           </Button>
         </div>
@@ -83,10 +116,3 @@ export function InviteAcceptPage({ inviteToken }: InviteAcceptPageProps): React.
     </div>
   );
 }
-<<<<<<< HEAD
-}
-=======
-
-// HOC로 감싸서 export
-export const InviteAcceptPage = withAuth(InviteAcceptPageContent);
->>>>>>> 78cb017 (refactor(web): withAuth HOC로 인증 필요 페이지 리팩토링)
