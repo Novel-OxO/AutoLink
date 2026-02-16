@@ -8,13 +8,13 @@ This file provides guidance to AI agents when working with code in this reposito
 
 ## Project Overview
 
-AutoLink는 AI 기반 링크/지식 관리 플랫폼이다. Bun 워크스페이스 모노레포 구조.
+AutoLink는 AI 기반 링크/지식 관리 플랫폼이다. pnpm 워크스페이스 모노레포 구조.
 
 ## Monorepo Packages
 
 | 패키지               | 경로                | 역할                               |
 | -------------------- | ------------------- | ---------------------------------- |
-| `@autolink/server`   | `packages/server`   | Hono 백엔드 (포트 3001)            |
+| `@autolink/server`   | `packages/server`   | NestJS 백엔드 (포트 3001)          |
 | `@autolink/web`      | `packages/web`      | Next.js 15 프론트엔드 (포트 3000)  |
 | `@autolink/app`      | `packages/app`      | React Native Expo 모바일 앱        |
 | `@autolink/shared`   | `packages/shared`   | Zod 스키마, 타입, 상수 (tsup 빌드) |
@@ -24,27 +24,39 @@ AutoLink는 AI 기반 링크/지식 관리 플랫폼이다. Bun 워크스페이�
 
 ```bash
 # 개발 서버
-bun dev                # 전체 dev 서버 실행
-bun dev:server         # Hono만
-bun dev:web            # Next.js만
-bun dev:app            # Expo만
+pnpm dev               # 전체 dev 서버 실행
+pnpm dev:server        # NestJS만
+pnpm dev:web           # Next.js만
+pnpm dev:app           # Expo만
 
 # 빌드/린트/테스트
-bun run build          # 전체 빌드
-bun run lint           # 전체 린트 (Biome)
-bun run lint:fix       # 린트 자동 수정
-bun run test           # 전체 테스트
-bun run format         # Biome 포맷
-bun run format:check   # 포맷 검사만
+pnpm build             # 전체 빌드
+pnpm lint              # 전체 린트 (Biome)
+pnpm lint:fix          # 린트 자동 수정
+pnpm test              # 전체 테스트
+pnpm format            # Biome 포맷
+pnpm format:check      # 포맷 검사만
 
 # 서버 테스트
-bun run test:server    # 서버 통합 테스트 (Docker 필요)
+pnpm test:server       # 서버 통합 테스트 (Docker 필요)
+
+# E2E 테스트
+pnpm test:e2e          # E2E 테스트
+pnpm test:e2e:ui       # E2E 테스트 UI
+pnpm test:e2e:debug    # E2E 테스트 디버그
 
 # DB (Prisma)
-bun run db:generate    # Prisma 클라이언트 생성
-bun run db:migrate     # 마이그레이션 실행
-bun run db:push        # 스키마 푸시
-bun run db:studio      # Prisma Studio
+pnpm db:generate       # Prisma 클라이언트 생성
+pnpm db:migrate        # 마이그레이션 실행
+pnpm db:push           # 스키마 푸시
+pnpm db:studio         # Prisma Studio
+
+# ERD
+pnpm erd:build         # ERD 빌드
+pnpm erd               # ERD 서버 실행
+
+# 클린
+pnpm clean             # 전체 클린
 
 # 인프라
 docker compose up -d    # PostgreSQL(15432) + Redis(16379)
@@ -52,11 +64,11 @@ docker compose up -d    # PostgreSQL(15432) + Redis(16379)
 
 ## Architecture
 
-**Server**: Hono 함수형 패턴. `bun --watch` 개발. Prisma ORM + PostgreSQL(pgvector) + Redis(Bull 큐). OAuth(Google/Apple) + 세션 기반 인증. 환경변수는 루트 `.env.dev`/`.env.prod`에서 Zod 스키마(`src/shared/lib/env.ts`)로 검증·로드. `@hono/zod-validator`로 `@autolink/shared` Zod 스키마 직접 활용. `AppType` export로 RPC 클라이언트 타입 추론 지원.
+**Server**: NestJS 기반 백엔드. `nest start --watch` 개발. Prisma ORM + PostgreSQL. Vitest 테스트 프레임워크. 환경변수는 루트 `.env.dev`/`.env.prod`에서 관리. Zod 스키마로 데이터 검증.
 
-**Web**: Next.js 15 App Router. Tailwind CSS v4 + Zustand(클라이언트 상태) + TanStack Query(서버 상태).
+**Web**: Next.js 15 App Router. Tailwind CSS v4 + Zustand(클라이언트 상태) + TanStack Query(서버 상태). Vitest 테스트 프레임워크. React Testing Library로 컴포넌트 테스트. react-resizable-panels@4.6.4 사용 (Group/Panel/Separator export).
 
-**App**: Expo + expo-router(파일 기반 라우팅) + NativeWind(Tailwind for RN) + Zustand.
+**App**: Expo + expo-router(파일 기반 라우팅) + NativeWind(Tailwind for RN) + Zustand. React Native 0.76.7 기반.
 
 **Shared**: Zod 스키마로 전 플랫폼 검증 통일. tsup으로 CJS/ESM 듀얼 빌드. 별도 엔트리포인트: `schemas/index`, `types/index`, `constants/index`.
 
@@ -76,7 +88,7 @@ Turborepo 없이 `package.json` 스크립트 체이닝으로 빌드 순서를 �
 - **린트/포맷**: Biome (세미콜론, 싱글쿼트, trailing comma, 100자). pre-commit 훅으로 lint-staged → `biome check --write` 자동 실행
 - **쿼트 규칙**: TS/JS 문자열과 import 경로는 싱글쿼트(`'`)를 사용합니다. JSX 속성값은 더블쿼트(`"`)를 사용합니다(Biome 기본). JSON은 스펙상 더블쿼트만 사용합니다.
 - **경로 별칭**: 모든 패키지에서 `@/*` → `src/*`
-- **테스트**: Vitest. 파일명 `*.spec.ts`. 통합 테스트는 `test/` 디렉토리(src와 같은 레벨). `bun run test:server`로 서버 테스트 실행
+- **테스트**: Vitest. 파일명 `*.spec.ts`. 통합 테스트는 `test/` 디렉토리(src와 같은 레벨). `pnpm test:server`로 서버 테스트 실행
 - **TypeScript**: strict 모드, ES2022 타겟
 - **타입 분리**: 인터페이스/타입은 로직 파일과 분리하여 `*.types.ts` 파일에 정의. 로직 파일에서 `export type { ... }` re-export로 외부 API 유지. 단, 해당 파일 내부에서만 사용되는 private 타입은 같은 파일에 둘 수 있음
 
