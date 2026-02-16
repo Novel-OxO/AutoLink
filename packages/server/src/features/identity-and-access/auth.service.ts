@@ -1,5 +1,5 @@
-import { constVoid, pipe } from 'fp-ts/function';
-import * as T from 'fp-ts/Task';
+import { constVoid, pipe } from 'fp-ts/lib/function';
+import * as T from 'fp-ts/lib/Task';
 
 import {
   WorkspaceAccessDeniedException,

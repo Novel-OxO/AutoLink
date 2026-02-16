@@ -76,12 +76,7 @@ export const ResizablePanelHandle: React.FC<ResizablePanelHandleProps> = ({
         disabled && 'cursor-default hover:bg-transparent',
         className,
       )}
-    >
-      <span
-        aria-hidden="true"
-        className="pointer-events-none h-full w-px bg-neutral-80 transition-colors duration-150 group-hover:bg-neutral-40"
-      />
-    </Separator>
+    />
   );
 };
 
