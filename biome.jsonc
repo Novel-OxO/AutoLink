@@ -55,6 +55,16 @@
       }
     },
     {
+      "includes": ["packages/server/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useImportType": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": ["**/test/**"],
       "linter": {
         "rules": {
