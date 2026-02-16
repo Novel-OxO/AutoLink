@@ -68,6 +68,7 @@ bun run db:studio      # Prisma Studio
 - **Error Handling**: Hono의 내장 에러 핸들러 활용, 일관된 에러 형식
 - **Database**: Prisma를 통한 모든 DB 접근, 타입 안전성 보장
 - **Environment**: `src/shared/lib/env.ts`에서 환경변수 검증 후 사용
+- **쿼트 규칙**: TS/JS 문자열과 import 경로는 싱글쿼트(`'`)를 사용합니다. JSX 속성값은 더블쿼트(`"`)를 사용합니다(Biome 기본). JSON은 스펙상 더블쿼트만 사용합니다.
 - **Testing**: 통합 테스트는 `test/` 디렉토리에 작성
 
 ## Infrastructure Guidelines

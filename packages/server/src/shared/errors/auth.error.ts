@@ -1,4 +1,4 @@
-import { BadRequestException, UnauthorizedException } from './base.error';
+import { BadRequestException, ForbiddenException, UnauthorizedException } from './base.error';
 
 export class SessionNotFoundException extends UnauthorizedException {
   constructor() {
@@ -27,5 +27,17 @@ export class OAuthFailedException extends UnauthorizedException {
 export class UnsupportedProviderException extends BadRequestException {
   constructor(provider: string) {
     super(`Unsupported provider: ${provider}`, 'UNSUPPORTED_PROVIDER');
+  }
+}
+
+export class WorkspaceHeaderInvalidException extends ForbiddenException {
+  constructor() {
+    super('Invalid workspace header', 'WORKSPACE_HEADER_INVALID');
+  }
+}
+
+export class WorkspaceAccessDeniedException extends ForbiddenException {
+  constructor() {
+    super('Workspace access denied', 'WORKSPACE_ACCESS_DENIED');
   }
 }

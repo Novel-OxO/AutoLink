@@ -1,12 +1,27 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+
+import { useWorkspaceStore } from '@/features/workspace/stores/workspace.store';
+
 import { env } from '@/lib/env';
-import { useAuthStore } from '@/stores/authStore';
-import { useAuthQuery, useLogoutMutation } from './useAuthQuery';
+import { useAuthStore } from '../stores/auth.store';
+import { useAuthQuery, useLogoutMutation } from './use-auth-query';
 
 export function useAuth() {
   const { data: user, isLoading, error, refetch } = useAuthQuery();
   const logoutMutation = useLogoutMutation();
   const { isLoginModalOpen, openLoginModal, closeLoginModal } = useAuthStore();
+  const { syncWorkspaceContext, clearWorkspaceContext } = useWorkspaceStore();
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    syncWorkspaceContext({
+      workspaceIds: user.workspaces.map((workspace) => workspace.id),
+      defaultWorkspaceId: user.defaultWorkspaceId,
+    });
+  }, [user, syncWorkspaceContext]);
 
   // 파생 상태
   const isLoggedIn = !!user;
@@ -21,10 +36,11 @@ export function useAuth() {
   const logout = useCallback(async () => {
     try {
       await logoutMutation.mutateAsync();
+      clearWorkspaceContext();
     } catch (error) {
       console.error('로그아웃 중 오류 발생:', error);
     }
-  }, [logoutMutation]);
+  }, [clearWorkspaceContext, logoutMutation]);
 
   // 세션 새로고침
   const refreshSession = useCallback(async () => {

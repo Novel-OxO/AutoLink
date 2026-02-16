@@ -149,13 +149,23 @@ describe('Auth Flow 통합 테스트', () => {
       // DB에 사용자 생성 확인
       const user = await testPrisma.user.findUnique({
         where: { email: 'test@example.com' },
-        include: { oauths: true },
+        include: {
+          oauths: true,
+          workspaceMembers: {
+            include: {
+              workspace: true,
+            },
+          },
+        },
       });
       expect(user).toBeTruthy();
       expect(user!.nickname).toBe('Test User');
       expect(user!.oauths).toHaveLength(1);
       expect(user!.oauths[0].provider).toBe('GOOGLE');
       expect(user!.oauths[0].providerId).toBe('google-123');
+      expect(user!.workspaceMembers).toHaveLength(1);
+      expect(user!.workspaceMembers[0].role).toBe('ADMIN');
+      expect(user!.workspaceMembers[0].workspace.name).toBe('Test User의 워크스페이스');
     });
 
     it('기존 사용자로 로그인하면 새 사용자를 생성하지 않는다', async () => {
@@ -181,11 +191,15 @@ describe('Auth Flow 통합 테스트', () => {
       expect(res.status).toBe(302);
 
       const users = await testPrisma.user.findMany({
-        include: { oauths: true },
+        include: {
+          oauths: true,
+          workspaceMembers: true,
+        },
       });
       expect(users).toHaveLength(1);
       expect(users[0].nickname).toBe('Existing User');
       expect(users[0].oauths).toHaveLength(1);
+      expect(users[0].workspaceMembers).toHaveLength(0);
     });
 
     it('code 파라미터가 없으면 400을 반환한다', async () => {
@@ -273,11 +287,66 @@ describe('Auth Flow 통합 테스트', () => {
         email: string;
         nickname: string;
         oauths: { provider: string }[];
+        workspaces: { id: number; name: string; role: string }[];
+        defaultWorkspaceId: number | null;
       }>(meRes);
       expect(body.email).toBe('test@example.com');
       expect(body.nickname).toBe('Test User');
       expect(body.oauths).toHaveLength(1);
       expect(body.oauths[0].provider).toBe('GOOGLE');
+      expect(body.workspaces).toHaveLength(1);
+      expect(body.workspaces[0].name).toBe('Test User의 워크스페이스');
+      expect(body.defaultWorkspaceId).toBe(body.workspaces[0].id);
+    });
+
+    it('유효하지 않은 workspace 헤더는 403을 반환한다', async () => {
+      const app = makeApp();
+
+      const loginRes = await app.request('/auth/google/callback?code=me-invalid-workspace');
+      const sessionId = extractSessionCookie(loginRes)!;
+
+      const meRes = await app.request('/auth/me', {
+        headers: {
+          Cookie: authCookie(sessionId),
+          'AutoLink-Workspace-Id': 'invalid',
+        },
+      });
+
+      expect(meRes.status).toBe(403);
+      const body = await jsonBody<{ errorCode: string }>(meRes);
+      expect(body.errorCode).toBe('WORKSPACE_HEADER_INVALID');
+    });
+
+    it('본인이 속하지 않은 workspace 헤더는 403을 반환한다', async () => {
+      const app = makeApp();
+
+      const loginRes = await app.request('/auth/google/callback?code=me-other-workspace');
+      const sessionId = extractSessionCookie(loginRes)!;
+
+      const otherUser = await testPrisma.user.create({
+        data: { email: 'other@example.com', nickname: 'Other User' },
+      });
+      const otherWorkspace = await testPrisma.workspace.create({
+        data: { name: 'Other Workspace' },
+      });
+      await testPrisma.workspaceMember.create({
+        data: {
+          workspaceId: otherWorkspace.id,
+          userId: otherUser.id,
+          role: 'ADMIN',
+        },
+      });
+
+      const meRes = await app.request('/auth/me', {
+        headers: {
+          Cookie: authCookie(sessionId),
+          'AutoLink-Workspace-Id': String(otherWorkspace.id),
+        },
+      });
+
+      expect(meRes.status).toBe(403);
+      const body = await jsonBody<{ errorCode: string }>(meRes);
+      expect(body.errorCode).toBe('WORKSPACE_ACCESS_DENIED');
     });
 
     it('인증되지 않은 요청은 401을 반환한다', async () => {

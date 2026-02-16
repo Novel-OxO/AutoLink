@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { useWorkspaceStore } from '@/features/workspace/stores/workspace.store';
 import { apiClient } from '@/lib/api';
 
 // Mock fetch
@@ -8,6 +10,10 @@ global.fetch = mockFetch;
 describe('ApiClient', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useWorkspaceStore.setState({
+      activeWorkspaceId: null,
+      defaultWorkspaceId: null,
+    });
   });
 
   describe('request method', () => {
@@ -65,6 +71,17 @@ describe('ApiClient', () => {
       });
 
       await expect(apiClient.get('/protected')).rejects.toThrow('UNAUTHORIZED');
+    });
+
+    it('errorCode가 있으면 errorCode를 에러 메시지로 사용한다', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 403,
+        statusText: 'Forbidden',
+        json: () => Promise.resolve({ errorCode: 'WORKSPACE_ADMIN_REQUIRED' }),
+      });
+
+      await expect(apiClient.get('/workspaces/1')).rejects.toThrow('WORKSPACE_ADMIN_REQUIRED');
     });
 
     it('기타 HTTP 에러를 적절히 처리한다', async () => {
@@ -160,6 +177,129 @@ describe('ApiClient', () => {
         expect.objectContaining({
           method: 'DELETE',
           credentials: 'include',
+        }),
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('워크스페이스 헤더', () => {
+    it('activeWorkspaceId가 있으면 헤더에 우선 반영한다', async () => {
+      useWorkspaceStore.setState({
+        activeWorkspaceId: 7,
+        defaultWorkspaceId: 3,
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ data: [] }),
+      });
+
+      await apiClient.listWorkspaces();
+
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/workspaces'),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'AutoLink-Workspace-Id': '7',
+          }),
+        }),
+      );
+    });
+
+    it('activeWorkspaceId가 없으면 defaultWorkspaceId를 사용한다', async () => {
+      useWorkspaceStore.setState({
+        activeWorkspaceId: null,
+        defaultWorkspaceId: 11,
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ data: [] }),
+      });
+
+      await apiClient.listWorkspaces();
+
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/workspaces'),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'AutoLink-Workspace-Id': '11',
+          }),
+        }),
+      );
+    });
+  });
+
+  describe('워크스페이스 API', () => {
+    it('createWorkspace가 생성 요청을 보낸다', async () => {
+      const mockResponse = {
+        id: 1,
+        name: '팀 워크스페이스',
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const result = await apiClient.createWorkspace({
+        name: '팀 워크스페이스',
+      });
+
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/workspaces'),
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({ name: '팀 워크스페이스' }),
+        }),
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('updateWorkspace가 수정 요청을 보낸다', async () => {
+      const mockResponse = {
+        id: 1,
+        name: '수정된 워크스페이스',
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const result = await apiClient.updateWorkspace(1, {
+        name: '수정된 워크스페이스',
+      });
+
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/workspaces/1'),
+        expect.objectContaining({
+          method: 'PATCH',
+          body: JSON.stringify({ name: '수정된 워크스페이스' }),
+        }),
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('acceptWorkspaceInvite가 수락 요청을 보낸다', async () => {
+      const mockResponse = {
+        workspaceId: 1,
+        workspaceName: '팀 워크스페이스',
+        role: 'MEMBER',
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const result = await apiClient.acceptWorkspaceInvite('invite-token-123');
+
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/invites/invite-token-123/accept'),
+        expect.objectContaining({
+          method: 'POST',
         }),
       );
       expect(result).toEqual(mockResponse);

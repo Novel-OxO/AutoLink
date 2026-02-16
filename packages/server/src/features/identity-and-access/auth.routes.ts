@@ -1,7 +1,7 @@
 import { OAuthCallbackQuerySchema } from '@autolink/shared/schemas';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-
+import { WORKSPACE_ID_HEADER_NAME } from '@/shared/constants';
 import { UnsupportedProviderException, UserNotFoundException } from '@/shared/errors/auth.error';
 import { env } from '@/shared/lib/env';
 import { requireAuth } from '@/shared/middleware/auth';
@@ -37,7 +37,7 @@ authRoutes.post('/auth/logout', requireAuth, async (c) => {
 
 // GET /auth/me
 authRoutes.get('/auth/me', requireAuth, async (c) => {
-  const user = await getUserWithOAuths(c.get('user').id);
+  const user = await getUserWithOAuths(c.get('user').id, c.req.header(WORKSPACE_ID_HEADER_NAME));
 
   if (!user) {
     throw new UserNotFoundException();
@@ -79,7 +79,11 @@ authRoutes.get(
 
     const sessionId = await createSession({ id, email });
     setSessionCookie(c, sessionId);
-    log.info('User logged in', { userId: id, isNew, provider: strategy.provider });
+    log.info('User logged in', {
+      userId: id,
+      isNew,
+      provider: strategy.provider,
+    });
 
     return c.redirect(`http://localhost:${env.WEB_PORT}`, 302);
   },
